@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/Users/rsc/Desktop/프로젝트/hankyeon/**)",
+      "Read(/Users/rsc/Desktop/프로젝트/hankyeon/**)",
+      "Read(/Users/rsc/Desktop/프로젝트/hankyeon/src/**)",
+      "Read(/Users/rsc/Desktop/프로젝트/hankyeon/src/**)",
+      "Read(/Users/rsc/Desktop/프로젝트/hankyeon/.claude/**)",
+      "Read(//Users/rsc/Desktop/프로젝트/hankyeon/**)",
+      "Read(//Users/rsc/Desktop/프로젝트/hankyeon/**)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

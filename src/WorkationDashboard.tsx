@@ -4,6 +4,7 @@ import WorkationManagementPage from "./pages/workation-management";
 import CompetitionPage from "./pages/competition";
 import OfficeManagementPage from "./pages/office-management";
 import PlanManagement from "./pages/plan-management";
+import BattleResultsPage from "./pages/battle-results";
 import {
   DashboardContainer,
   MainLayout,
@@ -35,6 +36,7 @@ const WorkationDashboard = () => {
     { id: "overview", icon: "📊", label: "Overview" },
     { id: "workation", icon: "✅", label: "워케이션 관리" },
     { id: "competition", icon: "🏆", label: "경쟁 현황" },
+    { id: "battle-results", icon: "⚔️", label: "대전 결과" },
     { id: "office", icon: "🏢", label: "제주도 오피스" },
     { id: "plan", icon: "📋", label: "계획서 관리" },
   ];
@@ -55,6 +57,8 @@ const WorkationDashboard = () => {
         return <WorkationManagementPage globalState={globalState} onNavigate={setActiveTab} />;
       case "competition":
         return <CompetitionPage globalState={globalState} />;
+      case "battle-results":
+        return <BattleResultsPage />;
       case "office":
         return <OfficeManagementPage />;
       case "plan":

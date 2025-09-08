@@ -3,6 +3,7 @@ import OverviewPage from "./pages/overview";
 import WorkationManagementPage from "./pages/workation-management";
 import CompetitionPage from "./pages/competition";
 import OfficeManagementPage from "./pages/office-management";
+import PlanManagement from "./pages/plan-management";
 import {
   DashboardContainer,
   MainLayout,
@@ -35,6 +36,7 @@ const WorkationDashboard = () => {
     { id: "workation", icon: "✅", label: "워케이션 관리" },
     { id: "competition", icon: "🏆", label: "경쟁 현황" },
     { id: "office", icon: "🏢", label: "제주도 오피스" },
+    { id: "plan", icon: "📋", label: "계획서 관리" },
   ];
 
   const globalState: GlobalState = {
@@ -45,27 +47,20 @@ const WorkationDashboard = () => {
     notifications,
   };
 
-
-
-
-
-
-
-
-
-
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
-        return <OverviewPage globalState={globalState} />;
+        return <OverviewPage globalState={globalState} onNavigate={setActiveTab} />;
       case "workation":
-        return <WorkationManagementPage globalState={globalState} />;
+        return <WorkationManagementPage globalState={globalState} onNavigate={setActiveTab} />;
       case "competition":
         return <CompetitionPage />;
       case "office":
         return <OfficeManagementPage />;
+      case "plan":
+        return <PlanManagement />;
       default:
-        return <OverviewPage globalState={globalState} />;
+        return <OverviewPage globalState={globalState} onNavigate={setActiveTab} />;
     }
   };
 
@@ -85,14 +80,10 @@ const WorkationDashboard = () => {
           ))}
         </Sidebar>
 
-        <MainContent>
-          {renderContent()}
-        </MainContent>
+        <MainContent>{renderContent()}</MainContent>
       </MainLayout>
 
-      <NotificationWidget>
-        🔔 {notifications} issues
-      </NotificationWidget>
+      <NotificationWidget>🔔 {notifications} issues</NotificationWidget>
     </DashboardContainer>
   );
 };

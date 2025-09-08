@@ -35,10 +35,11 @@ import {
 
 interface ToolItemComponentProps {
   tool: Tool;
+  onClick?: () => void;
 }
 
-const ToolItemComponent: React.FC<ToolItemComponentProps> = ({ tool }) => (
-  <ToolItem>
+const ToolItemComponent: React.FC<ToolItemComponentProps> = ({ tool, onClick }) => (
+  <ToolItem onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
     <ToolIcon gradient={tool.gradient}>{tool.icon}</ToolIcon>
     <ToolInfo>
       <ToolName>{tool.name}</ToolName>
@@ -54,11 +55,13 @@ const ToolItemComponent: React.FC<ToolItemComponentProps> = ({ tool }) => (
 interface WorkationManagementPageProps {
   globalState: GlobalState;
   isDetailView?: boolean;
+  onNavigate?: (tabId: string) => void;
 }
 
 const WorkationManagementPage: React.FC<WorkationManagementPageProps> = ({
   globalState,
   isDetailView = false,
+  onNavigate,
 }) => {
   const { progress, activeTab } = globalState;
 
@@ -157,6 +160,12 @@ const WorkationManagementPage: React.FC<WorkationManagementPageProps> = ({
     }, 500);
   };
 
+  const handleToolClick = (toolId: string) => {
+    if (toolId === "plan" && onNavigate) {
+      onNavigate("plan");
+    }
+  };
+
   // 상세 페이지인 경우
   if (isDetailView || activeTab === "workation") {
     return (
@@ -204,7 +213,7 @@ const WorkationManagementPage: React.FC<WorkationManagementPageProps> = ({
           <DetailedSectionTitle>🛠️ 관리 도구</DetailedSectionTitle>
           <ToolGrid>
             {tools.map((tool) => (
-              <ToolItemComponent key={tool.id} tool={tool} />
+              <ToolItemComponent key={tool.id} tool={tool} onClick={() => handleToolClick(tool.id)} />
             ))}
           </ToolGrid>
         </DetailedSection>
@@ -275,7 +284,7 @@ const WorkationManagementPage: React.FC<WorkationManagementPageProps> = ({
       </SectionHeader>
 
       {tools.map((tool) => (
-        <ToolItemComponent key={tool.id} tool={tool} />
+        <ToolItemComponent key={tool.id} tool={tool} onClick={() => handleToolClick(tool.id)} />
       ))}
     </ManagementContainer>
   );

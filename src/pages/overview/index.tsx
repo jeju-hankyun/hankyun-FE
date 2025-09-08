@@ -41,9 +41,10 @@ const StatusCardComponent: React.FC<StatusCardProps> = ({
 
 interface OverviewPageProps {
   globalState: GlobalState;
+  onNavigate?: (tabId: string) => void;
 }
 
-const OverviewPage: React.FC<OverviewPageProps> = ({ globalState }) => {
+const OverviewPage: React.FC<OverviewPageProps> = ({ globalState, onNavigate }) => {
   const { progress, checkedInUsers, dDay } = globalState;
 
   const statusCards = [
@@ -87,7 +88,7 @@ const OverviewPage: React.FC<OverviewPageProps> = ({ globalState }) => {
       </OverviewContainer>
 
       {/* 워케이션 관리 위젯 */}
-      <WorkationManagementPage globalState={globalState} />
+      <WorkationManagementPage globalState={globalState} onNavigate={onNavigate} />
 
       {/* 경쟁 현황 위젯 */}
       <CompetitionPage />

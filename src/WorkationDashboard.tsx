@@ -54,7 +54,7 @@ const WorkationDashboard = () => {
       case "workation":
         return <WorkationManagementPage globalState={globalState} onNavigate={setActiveTab} />;
       case "competition":
-        return <CompetitionPage />;
+        return <CompetitionPage globalState={globalState} />;
       case "office":
         return <OfficeManagementPage />;
       case "plan":

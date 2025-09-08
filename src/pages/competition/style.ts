@@ -93,6 +93,7 @@ export const CompetitionCard = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 
   &::before {
     content: '';
@@ -101,7 +102,40 @@ export const CompetitionCard = styled.div`
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+    background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #ffd700);
+    animation: shimmer 2s linear infinite;
+  }
+
+  &::after {
+    content: '⚔️';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 16px;
+    opacity: 0.6;
+    animation: battle-pulse 3s ease-in-out infinite;
+  }
+
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(255, 107, 107, 0.2);
+    border-color: rgba(255, 107, 107, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+
+    &::after {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -100% 0; }
+    100% { background-position: 100% 0; }
+  }
+
+  @keyframes battle-pulse {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+    50% { transform: scale(1.1) rotate(10deg); opacity: 1; }
   }
 `;
 
@@ -186,12 +220,59 @@ export const ProgressBar = styled.div`
 export const ProgressFill = styled.div<{ progress: number; isWinning?: boolean }>`
   height: 100%;
   background: ${props => props.isWinning ? 
-    'linear-gradient(90deg, #4caf50, #66bb6a)' : 
-    'linear-gradient(90deg, #ff9800, #ffb74d)'
+    'linear-gradient(90deg, #4caf50, #66bb6a, #81c784)' : 
+    'linear-gradient(90deg, #f44336, #ef5350, #e57373)'
   };
   width: ${props => props.progress}%;
   border-radius: 4px;
-  transition: width 0.3s ease;
+  transition: all 1s ease-in-out;
+  position: relative;
+  box-shadow: ${props => props.isWinning ? 
+    '0 0 15px rgba(76, 175, 80, 0.4)' : 
+    '0 0 15px rgba(244, 67, 54, 0.4)'
+  };
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255,255,255,0.3), 
+      transparent
+    );
+    animation: shine 2s infinite;
+    border-radius: 4px;
+  }
+
+  &::before {
+    content: '${props => props.isWinning ? '🔥' : '💪'}';
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    animation: ${props => props.isWinning ? 'victory-dance' : 'struggle'} 1.5s ease-in-out infinite;
+  }
+
+  @keyframes shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes victory-dance {
+    0%, 100% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-60%) scale(1.1); }
+  }
+
+  @keyframes struggle {
+    0%, 100% { transform: translateY(-50%) rotate(0deg); }
+    25% { transform: translateY(-50%) rotate(-3deg); }
+    75% { transform: translateY(-50%) rotate(3deg); }
+  }
 `;
 
 export const EventItem = styled.div`
@@ -471,4 +552,271 @@ export const MatchScore = styled.div`
 export const MatchDate = styled.div`
   font-size: 12px;
   color: rgba(255, 255, 255, 0.5);
+`;
+
+// 새로운 원형 진행도 위젯 스타일
+export const VSContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 32px;
+  position: relative;
+`;
+
+export const ProgressCircleContainer = styled.div<{ isWinner?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 32px 24px;
+  border: 2px solid ${props => props.isWinner ? '#ffd700' : 'rgba(255, 255, 255, 0.1)'};
+  position: relative;
+  transition: all 0.3s ease;
+  
+  ${props => props.isWinner && `
+    background: rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    transform: scale(1.05);
+  `}
+
+  &::before {
+    content: '${props => props.isWinner ? '👑' : ''}';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    animation: ${props => props.isWinner ? 'bounce 1s ease-in-out infinite' : 'none'};
+  }
+
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+  }
+`;
+
+export const CircularProgress = styled.div<{ progress: number; size?: number; strokeWidth?: number; color?: string }>`
+  position: relative;
+  width: ${props => props.size || 120}px;
+  height: ${props => props.size || 120}px;
+  margin-bottom: 16px;
+  
+  svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+  
+  .progress-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: ${props => props.strokeWidth || 8};
+  }
+  
+  .progress-fill {
+    fill: none;
+    stroke: ${props => props.color || '#7c3aed'};
+    stroke-width: ${props => props.strokeWidth || 8};
+    stroke-linecap: round;
+    stroke-dasharray: ${props => {
+      const radius = (props.size || 120) / 2 - (props.strokeWidth || 8);
+      const circumference = 2 * Math.PI * radius;
+      return circumference;
+    }};
+    stroke-dashoffset: ${props => {
+      const radius = (props.size || 120) / 2 - (props.strokeWidth || 8);
+      const circumference = 2 * Math.PI * radius;
+      return circumference - (props.progress / 100) * circumference;
+    }};
+    transition: stroke-dashoffset 1s ease-in-out;
+    filter: drop-shadow(0 0 6px ${props => props.color || '#7c3aed'}50);
+  }
+`;
+
+export const ProgressLabel = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+`;
+
+export const ProgressPercentage = styled.div<{ isWinner?: boolean }>`
+  font-size: 28px;
+  font-weight: 700;
+  color: ${props => props.isWinner ? '#ffd700' : '#ffffff'};
+  margin-bottom: 4px;
+  text-shadow: ${props => props.isWinner ? '0 0 10px #ffd700' : 'none'};
+`;
+
+export const ProgressTeamName = styled.div`
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  text-align: center;
+  margin-top: 8px;
+`;
+
+export const VSSymbol = styled.div`
+  font-size: 48px;
+  font-weight: 900;
+  color: #ff6b6b;
+  text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+  position: relative;
+  
+  &::before {
+    content: '⚡';
+    position: absolute;
+    top: -10px;
+    left: -20px;
+    font-size: 20px;
+    animation: sparkle 1.5s ease-in-out infinite;
+  }
+  
+  &::after {
+    content: '⚡';
+    position: absolute;
+    bottom: -10px;
+    right: -20px;
+    font-size: 20px;
+    animation: sparkle 1.5s ease-in-out infinite reverse;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  @keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+`;
+
+export const BattleInfo = styled.div`
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 24px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+export const BattleTitle = styled.h3`
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+`;
+
+export const BattleStatus = styled.div<{ status: 'leading' | 'losing' | 'tie' }>`
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 12px;
+  display: inline-block;
+  
+  ${props => {
+    switch (props.status) {
+      case 'leading':
+        return `
+          background: linear-gradient(135deg, #4caf50, #45a049);
+          color: white;
+          box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        `;
+      case 'losing':
+        return `
+          background: linear-gradient(135deg, #f44336, #d32f2f);
+          color: white;
+          box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        `;
+      case 'tie':
+        return `
+          background: linear-gradient(135deg, #ff9800, #f57c00);
+          color: white;
+          box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        `;
+      default:
+        return `
+          background: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.8);
+        `;
+    }
+  }}
+`;
+
+export const CompetitiveBadge = styled.div<{ type: 'fire' | 'lightning' | 'star' | 'trophy' }>`
+  position: absolute;
+  font-size: 20px;
+  opacity: 0.8;
+  animation: float 3s ease-in-out infinite;
+  
+  ${props => {
+    switch (props.type) {
+      case 'fire':
+        return `
+          top: 10%;
+          left: 5%;
+          animation-delay: 0s;
+        `;
+      case 'lightning':
+        return `
+          top: 20%;
+          right: 10%;
+          animation-delay: 0.5s;
+        `;
+      case 'star':
+        return `
+          bottom: 30%;
+          left: 8%;
+          animation-delay: 1s;
+        `;
+      case 'trophy':
+        return `
+          bottom: 15%;
+          right: 5%;
+          animation-delay: 1.5s;
+        `;
+      default:
+        return '';
+    }
+  }}
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-10px) rotate(5deg); }
+    66% { transform: translateY(-5px) rotate(-3deg); }
+  }
+`;
+
+export const LiveIndicator = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 71, 87, 0.2);
+  border: 1px solid #ff4757;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff4757;
+  margin-left: 12px;
+  
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #ff4757;
+    border-radius: 50%;
+    animation: blink 1s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
 `;

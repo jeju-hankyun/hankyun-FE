@@ -34,15 +34,6 @@ interface PR {
   description: string;
 }
 
-interface Plan {
-  id: string;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  participants: string[];
-  location: string;
-}
 
 const PlanManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'prs' | 'create'>('prs');
@@ -103,14 +94,6 @@ const PlanManagement: React.FC = () => {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return '#f59e0b';
-      case 'approved': return '#10b981';
-      case 'rejected': return '#ef4444';
-      default: return '#6b7280';
-    }
-  };
 
   const getStatusText = (status: string) => {
     switch (status) {

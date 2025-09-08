@@ -42,6 +42,18 @@ import {
   MatchResult,
   MatchScore,
   MatchDate,
+  VSContainer,
+  ProgressCircleContainer,
+  CircularProgress,
+  ProgressLabel,
+  ProgressPercentage,
+  ProgressTeamName,
+  VSSymbol,
+  BattleInfo,
+  BattleTitle,
+  BattleStatus,
+  CompetitiveBadge,
+  LiveIndicator,
 } from "./style";
 
 interface EventItemComponentProps {
@@ -61,20 +73,74 @@ const EventItemComponent: React.FC<EventItemComponentProps> = ({ event }) => (
   </EventItem>
 );
 
+interface CircularProgressComponentProps {
+  progress: number;
+  teamName: string;
+  isWinner: boolean;
+  color?: string;
+  size?: number;
+}
+
+const CircularProgressComponent: React.FC<CircularProgressComponentProps> = ({
+  progress,
+  teamName,
+  isWinner,
+  color = "#7c3aed",
+  size = 140,
+}) => {
+  const radius = size / 2 - 8;
+
+  return (
+    <ProgressCircleContainer isWinner={isWinner}>
+      <CircularProgress progress={progress} size={size} color={color}>
+        <svg>
+          <circle
+            className="progress-bg"
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+          />
+          <circle
+            className="progress-fill"
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+          />
+        </svg>
+        <ProgressLabel>
+          <ProgressPercentage isWinner={isWinner}>
+            {progress}%
+          </ProgressPercentage>
+        </ProgressLabel>
+      </CircularProgress>
+      <ProgressTeamName>{teamName}</ProgressTeamName>
+    </ProgressCircleContainer>
+  );
+};
+
 interface CompetitionPageProps {
   globalState?: GlobalState;
   isDetailView?: boolean;
 }
 
-const CompetitionPage: React.FC<CompetitionPageProps> = ({ 
-  globalState, 
-  isDetailView = false 
+const CompetitionPage: React.FC<CompetitionPageProps> = ({
+  globalState,
+  isDetailView = false,
 }) => {
+  // 현재 진행 중인 경쟁 데이터
+  const currentBattle = {
+    ourTeam: "우리팀",
+    theirTeam: "테크컴퍼니B",
+    ourProgress: 78,
+    theirProgress: 100,
+    battleTitle: "제주도 워케이션 챌린지",
+  };
   const events: Event[] = [
     {
       id: 1,
       title: "🏆 경쟁 결과 업데이트",
-      description: "오늘 테크컴퍼니B와의 경쟁에서 승리했습니다 (진행도: 95% vs 87%)",
+      description:
+        "오늘 테크컴퍼니B와의 경쟁에서 승리했습니다 (진행도: 95% vs 87%)",
       time: "방금 전",
       category: "경쟁현황",
     },
@@ -188,16 +254,85 @@ const CompetitionPage: React.FC<CompetitionPageProps> = ({
     }, 500);
   };
 
+  // 배틀 상태 계산
+  const getBattleStatus = () => {
+    if (currentBattle.ourProgress > currentBattle.theirProgress)
+      return "leading";
+    if (currentBattle.ourProgress < currentBattle.theirProgress)
+      return "losing";
+    return "tie";
+  };
+
+  const getBattleStatusText = () => {
+    const diff = Math.abs(
+      currentBattle.ourProgress - currentBattle.theirProgress
+    );
+    switch (getBattleStatus()) {
+      case "leading":
+        return `${diff}% 앞서고 있습니다!`;
+      case "losing":
+        return `${diff}% 뒤처져 있습니다`;
+      case "tie":
+        return "동점입니다!";
+    }
+  };
+
   // 상세 페이지인 경우
-  if (isDetailView || (globalState && globalState.activeTab === "competition")) {
+  if (
+    isDetailView ||
+    (globalState && globalState.activeTab === "competition")
+  ) {
     return (
       <CompetitionPageContainer>
-        <div>
-          <PageTitle>🏆 워케이션 경쟁 현황</PageTitle>
+        <div style={{ position: "relative" }}>
+          <PageTitle>
+            🏆 워케이션 경쟁 현황<LiveIndicator>LIVE</LiveIndicator>
+          </PageTitle>
           <PageSubtitle>
             다른 팀들과 경쟁하며 더 나은 워케이션 성과를 만들어보세요
           </PageSubtitle>
+
+          {/* 떠다니는 경쟁 요소들 */}
+          <CompetitiveBadge type="fire">🔥</CompetitiveBadge>
+          <CompetitiveBadge type="lightning">⚡</CompetitiveBadge>
+          <CompetitiveBadge type="star">⭐</CompetitiveBadge>
+          <CompetitiveBadge type="trophy">🏆</CompetitiveBadge>
         </div>
+
+        {/* 메인 VS 위젯 */}
+        <DetailedSection>
+          <DetailedSectionTitle>⚔️ 현재 경쟁 상황</DetailedSectionTitle>
+          <BattleInfo>
+            <BattleTitle>{currentBattle.battleTitle}</BattleTitle>
+            <BattleStatus status={getBattleStatus()}>
+              {getBattleStatusText()}
+            </BattleStatus>
+          </BattleInfo>
+
+          <VSContainer>
+            <CircularProgressComponent
+              progress={currentBattle.ourProgress}
+              teamName={currentBattle.ourTeam}
+              isWinner={
+                currentBattle.ourProgress >= currentBattle.theirProgress
+              }
+              color="#7c3aed"
+              size={160}
+            />
+
+            <VSSymbol>VS</VSSymbol>
+
+            <CircularProgressComponent
+              progress={currentBattle.theirProgress}
+              teamName={currentBattle.theirTeam}
+              isWinner={
+                currentBattle.theirProgress >= currentBattle.ourProgress
+              }
+              color="#e11d48"
+              size={160}
+            />
+          </VSContainer>
+        </DetailedSection>
 
         {/* 경쟁 통계 */}
         <DetailedSection>
@@ -243,40 +378,49 @@ const CompetitionPage: React.FC<CompetitionPageProps> = ({
                 <CompetitionHeader>
                   <CompetitionTitle>{comp.title}</CompetitionTitle>
                   <CompetitionStatus status={comp.status}>
-                    {comp.status === 'active' ? '진행중' :
-                     comp.status === 'completed' ? '완료' : '예정'}
+                    {comp.status === "active"
+                      ? "진행중"
+                      : comp.status === "completed"
+                      ? "완료"
+                      : "예정"}
                   </CompetitionStatus>
                 </CompetitionHeader>
-                
+
                 <CompetitionProgress>
                   <ProgressHeader>
                     <TeamName>{comp.ourTeam}</TeamName>
-                    <ProgressValue isWinning={comp.ourProgress > comp.theirProgress}>
+                    <ProgressValue
+                      isWinning={comp.ourProgress > comp.theirProgress}
+                    >
                       {comp.ourProgress}%
                     </ProgressValue>
                   </ProgressHeader>
                   <ProgressBar>
-                    <ProgressFill 
-                      progress={comp.ourProgress} 
-                      isWinning={comp.ourProgress > comp.theirProgress} 
+                    <ProgressFill
+                      progress={comp.ourProgress}
+                      isWinning={comp.ourProgress > comp.theirProgress}
                     />
                   </ProgressBar>
-                  
+
                   <ProgressHeader>
                     <TeamName>{comp.theirTeam}</TeamName>
-                    <ProgressValue isWinning={comp.theirProgress > comp.ourProgress}>
+                    <ProgressValue
+                      isWinning={comp.theirProgress > comp.ourProgress}
+                    >
                       {comp.theirProgress}%
                     </ProgressValue>
                   </ProgressHeader>
                   <ProgressBar>
-                    <ProgressFill 
-                      progress={comp.theirProgress} 
-                      isWinning={comp.theirProgress > comp.ourProgress} 
+                    <ProgressFill
+                      progress={comp.theirProgress}
+                      isWinning={comp.theirProgress > comp.ourProgress}
                     />
                   </ProgressBar>
                 </CompetitionProgress>
-                
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
+
+                <div
+                  style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}
+                >
                   마감일: {comp.endDate}
                 </div>
               </CompetitionCard>
@@ -310,11 +454,26 @@ const CompetitionPage: React.FC<CompetitionPageProps> = ({
           {matchHistory.map((match) => (
             <MatchHistoryItem key={match.id}>
               <MatchTeams>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff', marginBottom: '4px' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      color: "#fff",
+                      marginBottom: "4px",
+                    }}
+                  >
                     {match.ourTeam}
                   </div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>
+                  <div
+                    style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)" }}
+                  >
                     vs {match.theirTeam}
                   </div>
                 </div>
@@ -322,10 +481,20 @@ const CompetitionPage: React.FC<CompetitionPageProps> = ({
                   {match.ourScore} - {match.theirScore}
                 </MatchScore>
               </MatchTeams>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                  gap: "4px",
+                }}
+              >
                 <MatchResult result={match.result}>
-                  {match.result === 'win' ? '승리' : 
-                   match.result === 'lose' ? '패배' : '무승부'}
+                  {match.result === "win"
+                    ? "승리"
+                    : match.result === "lose"
+                    ? "패배"
+                    : "무승부"}
                 </MatchResult>
                 <MatchDate>{match.date}</MatchDate>
               </div>

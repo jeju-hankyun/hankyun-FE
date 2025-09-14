@@ -16,6 +16,30 @@ const authApi = axios.create({
 let accessToken: string | null = null;
 let navigateFunction: CustomNavigateFunction | null = null; // navigate 함수 저장 변수
 
+// --- Interfaces for new APIs ---
+interface UserResponse {
+  user_id: number;
+  name: string;
+  email: string;
+  profile: string;
+  role: string;
+}
+
+interface WorkerCreateRequest {
+  company_id: number;
+  job_title: string;
+  rank: string;
+}
+
+interface ClubMemberCreateRequest {
+  club_id: number;
+}
+
+interface BaseResponse<T> {
+  message: string;
+  data: T | null;
+}
+
 // Access Token을 설정하는 함수 추가
 export const setAccessToken = (token: string) => {
   accessToken = token;
@@ -119,6 +143,51 @@ export const reissueToken = async (): Promise<string> => {
     return newAccessToken.split(' ')[1]; // "Bearer " 제거 후 반환
   } catch (error) {
     console.error('토큰 재발급 실패:', error);
+    throw error;
+  }
+};
+
+// --- New API functions ---
+// 내 프로필 조회 API
+export const getUserProfile = async (): Promise<BaseResponse<UserResponse>> => {
+  try {
+    const response = await authApi.get<BaseResponse<UserResponse>>(`/user/profile`);
+    return response.data;
+  } catch (error) {
+    console.error('내 프로필 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 다른 사용자 프로필 조회 API
+export const getUserProfileById = async (userId: number): Promise<BaseResponse<UserResponse>> => {
+  try {
+    const response = await authApi.get<BaseResponse<UserResponse>>(`/user/profile/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('다른 사용자 프로필 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 근로자 정보 등록 API
+export const postWorker = async (data: WorkerCreateRequest): Promise<BaseResponse<string>> => {
+  try {
+    const response = await authApi.post<BaseResponse<string>>(`/user/worker`, data);
+    return response.data;
+  } catch (error) {
+    console.error('근로자 정보 등록 실패:', error);
+    throw error;
+  }
+};
+
+// 클럽 멤버 정보 등록 API
+export const postClubMember = async (data: ClubMemberCreateRequest): Promise<BaseResponse<string>> => {
+  try {
+    const response = await authApi.post<BaseResponse<string>>(`/user/club_member`, data);
+    return response.data;
+  } catch (error) {
+    console.error('클럽 멤버 정보 등록 실패:', error);
     throw error;
   }
 };

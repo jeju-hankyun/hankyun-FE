@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'; // useState 임포트
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { handleGoogleCallback } from '../../auth/api'; // api.ts에서 함수 임포트
-import { setAccessToken } from '../../auth/api'; // setAccessToken 임포트
+import { handleGoogleCallback, setAccessToken } from '../../auth/api'; // api.ts에서 함수 임포트
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -63,7 +62,7 @@ const GoogleAuthCallback: React.FC = () => {
 };
 
 const ErrorMessage = styled.p`
-  color: #d32f2f;
+  color: red; // 에러 메시지 색상만 유지
   font-weight: bold;
   margin-top: 20px;
 `;

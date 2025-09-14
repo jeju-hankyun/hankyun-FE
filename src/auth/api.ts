@@ -1,4 +1,8 @@
 import axios from 'axios';
+// import { NavigateFunction } from 'react-router-dom'; // NavigateFunction 타입 임포트 제거
+
+// useNavigate 훅이 반환하는 함수의 시그니처와 일치하는 사용자 정의 타입 정의
+type CustomNavigateFunction = (to: string, options?: { replace?: boolean; state?: any }) => void;
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // .env 파일에서 API 기본 URL을 가져오거나 기본값 설정
 
@@ -10,10 +14,21 @@ const authApi = axios.create({
 
 // Access Token 저장 변수 (클라이언트 측에서 관리 필요)
 let accessToken: string | null = null;
+let navigateFunction: CustomNavigateFunction | null = null; // navigate 함수 저장 변수
 
 // Access Token을 설정하는 함수 추가
 export const setAccessToken = (token: string) => {
   accessToken = token;
+};
+
+// Access Token을 반환하는 함수 추가
+export const getAccessToken = (): string | null => {
+  return accessToken;
+};
+
+// navigate 함수를 설정하는 함수 추가
+export const setNavigateFunction = (navigate: CustomNavigateFunction) => {
+  navigateFunction = navigate;
 };
 
 // Request 인터셉터: Access Token을 Authorization 헤더에 추가
@@ -45,7 +60,11 @@ authApi.interceptors.response.use(
       } catch (refreshError) {
         console.error('토큰 재발급 실패 및 로그인 페이지로 리다이렉트:', refreshError);
         // 토큰 재발급 실패 시 로그인 페이지로 리다이렉트
-        window.location.href = '/login'; // TODO: React Router의 navigate를 사용하도록 변경 필요
+        if (navigateFunction) {
+          navigateFunction('/login');
+        } else {
+          window.location.href = '/login'; // navigate 함수가 없을 경우 fallback
+        }
         return Promise.reject(refreshError);
       }
     }

@@ -11,7 +11,7 @@ const LoginPageContainer = styled.div`
 `;
 
 const LoginForm = styled.div`
-  background-color: #ffffff;
+  background-color: #ffffff; // 원래 흰색 배경으로 복원
   padding: 40px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

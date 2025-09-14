@@ -1,11 +1,13 @@
 import "./App.css";
-import WorkationDashboard from "./WorkationDashboard";
+import { BrowserRouter as Router } from "react-router-dom";
+import React from 'react';
+import AuthRouter from './AuthRouter';
 
 function App() {
   return (
-    <>
-      <WorkationDashboard></WorkationDashboard>
-    </>
+    <Router>
+      <AuthRouter />
+    </Router>
   );
 }
 

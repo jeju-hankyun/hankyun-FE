@@ -4,19 +4,28 @@ import axios from 'axios';
 // useNavigate 훅이 반환하는 함수의 시그니처와 일치하는 사용자 정의 타입 정의
 type CustomNavigateFunction = (to: string, options?: { replace?: boolean; state?: any }) => void;
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'; // .env 파일에서 API 기본 URL을 가져오거나 기본값 설정
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
-// axios 인스턴스 생성 (인터셉터 설정을 위해)
 const authApi = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // 쿠키 전송을 위해 필요
+  withCredentials: true,
 });
 
-// Access Token 저장 변수 (클라이언트 측에서 관리 필요)
 let accessToken: string | null = null;
-let navigateFunction: CustomNavigateFunction | null = null; // navigate 함수 저장 변수
+let navigateFunction: CustomNavigateFunction | null = null; // CustomNavigateFunction 사용
 
-// --- Interfaces for new APIs ---
+// --- Common Interfaces ---
+interface BaseResponse<T> {
+  message: string;
+  data: T | null;
+}
+
+interface CursorResponse<T> {
+  values: T[] | null;
+  has_next: boolean | null;
+}
+
+// --- User related Interfaces ---
 interface UserResponse {
   user_id: number;
   name: string;
@@ -35,22 +44,125 @@ interface ClubMemberCreateRequest {
   club_id: number;
 }
 
-interface BaseResponse<T> {
-  message: string;
-  data: T | null;
+// --- Organization related Interfaces ---
+interface OrganizationResponse {
+  organization_id: number;
+  owner_id: number;
+  type: string;
+  name: string;
+  logo: string;
+  description: string;
 }
 
-// Access Token을 설정하는 함수 추가
+interface OrganizationCreateRequest {
+  type: string;
+  name: string;
+  description: string;
+}
+
+// --- Workcation Group related Interfaces ---
+interface WorkcationGroupResponse {
+  workcation_group_id: number;
+  organization_id: number;
+  manager: number;
+  place: string;
+  money: number;
+  purpose: string;
+  start_date: string;
+  end_date: string;
+}
+
+interface CreateWorkcationGroupRequest {
+  place: string;
+  money: number;
+  purpose: string;
+  start_date: string;
+  end_date: string;
+}
+
+// --- Trip related Interfaces ---
+interface CreateTripRequest {
+  place: string;
+  start_date: string;
+  end_date: string;
+}
+
+interface TripResponse {
+  trip_id: number;
+  workcation_group_id: number;
+  place: string;
+  start_date: string;
+  end_date: string;
+}
+
+// --- Trip Description PR related Interfaces ---
+interface CreateTripDescriptionPRRequest {
+  writer_id: number;
+  description: string;
+}
+
+interface TripDescriptionPRResponse {
+  trip_description_pr_id: number;
+  trip_description_id: number;
+  writer_id: number;
+  description: string;
+  state: string;
+}
+
+// --- CVC related Interfaces ---
+interface CreateDailyCvcRequest {
+  target_date: string; // YYYY-MM-DD
+  group_ids: number[]; // 최소 2개 이상
+}
+
+type WorkcationCvcUploadState = 1 | 2; // enum 대신 리터럴 유니언 타입 사용
+
+interface UploadReportRequest {
+  trip_id: number;
+  match_id: number;
+  document_id: number;
+  longitude: number;
+  latitude: number;
+}
+
+interface UploadResponse {
+  workcation_cvc_upload_id: number;
+  trip_id: number;
+  workcation_match_id: number;
+  workcation_document_id: number;
+  longitude: number;
+  latitude: number;
+  state: WorkcationCvcUploadState;
+  created_at: string;
+}
+
+interface UpdateUploadStateRequest {
+  state: WorkcationCvcUploadState;
+}
+
+interface MatchProgressResponse {
+  group_id: number;
+  progress: number;
+}
+
+interface CvcStatusResponse {
+  cvc_id: number;
+  cvc_date: string; // YYYY-MM-DD
+  is_completed: 0 | 1; // 0: 진행중, 1: 완료
+  matches: number;
+  progress: MatchProgressResponse[];
+  winner?: number | null; // 완료되지 않았으면 null
+}
+
+// --- Existing functions ---
 export const setAccessToken = (token: string) => {
   accessToken = token;
 };
 
-// Access Token을 반환하는 함수 추가
 export const getAccessToken = (): string | null => {
   return accessToken;
 };
 
-// navigate 함수를 설정하는 함수 추가
 export const setNavigateFunction = (navigate: CustomNavigateFunction) => {
   navigateFunction = navigate;
 };
@@ -192,5 +304,251 @@ export const postClubMember = async (data: ClubMemberCreateRequest): Promise<Bas
   }
 };
 
+// --- Organization API functions ---
+// 조직 목록 조회 API
+export const getOrganizations = async (
+  cursorId?: number,
+  size: number = 20
+): Promise<BaseResponse<CursorResponse<OrganizationResponse>>> => {
+  try {
+    const response = await authApi.get<BaseResponse<CursorResponse<OrganizationResponse>>>(`/organizations/`, {
+      params: { cursorId, size },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('조직 목록 조회 실패:', error);
+    throw error;
+  }
+};
+
+// 조직/회사 등록 API
+export const addOrganization = async (
+  data: OrganizationCreateRequest
+): Promise<BaseResponse<string>> => {
+  try {
+    const response = await authApi.post<BaseResponse<string>>(`/organizations/`, data);
+    return response.data;
+  } catch (error) {
+    console.error('조직/회사 등록 실패:', error);
+    throw error;
+  }
+};
+
+// 조직 로고 업로드 API
+export const uploadOrganizationLogo = async (
+  organizationId: number,
+  file: File
+): Promise<BaseResponse<string>> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await authApi.patch<BaseResponse<string>>(
+      `/organizations/${organizationId}/logo`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('조직 로고 업로드 실패:', error);
+    throw error;
+  }
+};
+
+// --- Workcation Group API functions ---
+// 워케이션 그룹 생성 API
+export const createWorkcationGroup = async (
+  organizationId: number,
+  data: CreateWorkcationGroupRequest
+): Promise<BaseResponse<WorkcationGroupResponse>> => {
+  try {
+    const response = await authApi.post<BaseResponse<WorkcationGroupResponse>>(
+      `/organizations/${organizationId}/workcation-groups`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error('워케이션 그룹 생성 실패:', error);
+    throw error;
+  }
+};
+
+// 조직별 워케이션 그룹 목록 조회 API
+export const getWorkcationGroups = async (
+  organizationId: number,
+  cursor?: string,
+  size: number = 20
+): Promise<BaseResponse<CursorResponse<WorkcationGroupResponse>>> => {
+  try {
+    const response = await authApi.get<BaseResponse<CursorResponse<WorkcationGroupResponse>>>(
+      `/organizations/${organizationId}/workcation-groups`,
+      {
+        params: { cursor, size },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('조직별 워케이션 그룹 목록 조회 실패:', error);
+    throw error;
+  }
+};
+
+// --- Trip API functions ---
+// Trip 생성 API
+export const createTrip = async (
+  workcationGroupId: number,
+  data: CreateTripRequest
+): Promise<BaseResponse<TripResponse>> => {
+  try {
+    const response = await authApi.post<BaseResponse<TripResponse>>(
+      `/workcation-groups/${workcationGroupId}/trips`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Trip 생성 실패:', error);
+    throw error;
+  }
+};
+
+// Trip 목록 조회 API
+export const getTrips = async (
+  workcationGroupId: number,
+): Promise<BaseResponse<CursorResponse<TripResponse>>> => {
+  try {
+    const response = await authApi.get<BaseResponse<CursorResponse<TripResponse>>>(
+      `/workcation-groups/${workcationGroupId}/trips`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Trip 목록 조회 실패:', error);
+    throw error;
+  }
+};
+
+// --- Trip Description PR API functions ---
+// Trip Description PR 생성 API
+export const createTripDescriptionPR = async (
+  tripDescriptionId: number,
+  data: CreateTripDescriptionPRRequest
+): Promise<BaseResponse<TripDescriptionPRResponse>> => {
+  try {
+    const response = await authApi.post<BaseResponse<TripDescriptionPRResponse>>(
+      `/trip-descriptions/${tripDescriptionId}/prs`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Trip Description PR 생성 실패:', error);
+    throw error;
+  }
+};
+
+// Trip Description PR 승인 API
+export const approvePR = async (
+  prId: number
+): Promise<BaseResponse<TripDescriptionPRResponse>> => {
+  try {
+    const response = await authApi.patch<BaseResponse<TripDescriptionPRResponse>>(
+      `/trip-description-prs/${prId}/approve`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('PR 승인 실패:', error);
+    throw error;
+  }
+};
+
+// Trip Description PR 거절 API
+export const rejectPR = async (
+  prId: number
+): Promise<BaseResponse<TripDescriptionPRResponse>> => {
+  try {
+    const response = await authApi.patch<BaseResponse<TripDescriptionPRResponse>>(
+      `/trip-description-prs/${prId}/reject`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('PR 거절 실패:', error);
+    throw error;
+  }
+};
+
+// --- New CVC API functions ---
+// 일일 CVC 생성 API
+export const createDailyCvc = async (
+  data: CreateDailyCvcRequest
+): Promise<BaseResponse<string>> => {
+  try {
+    const response = await authApi.post<BaseResponse<string>>(`/cvc/create-daily`, data);
+    return response.data;
+  } catch (error) {
+    console.error('일일 CVC 생성 실패:', error);
+    throw error;
+  }
+};
+
+// 진행 보고서 업로드 API
+export const uploadProgressReport = async (
+  data: UploadReportRequest
+): Promise<BaseResponse<UploadResponse>> => {
+  try {
+    const response = await authApi.post<BaseResponse<UploadResponse>>(
+      `/cvc/upload-report`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error('진행 보고서 업로드 실패:', error);
+    throw error;
+  }
+};
+
+// 업로드 상태 업데이트 API
+export const updateUploadState = async (
+  uploadId: number,
+  data: UpdateUploadStateRequest
+): Promise<BaseResponse<string>> => {
+  try {
+    const response = await authApi.patch<BaseResponse<string>>(
+      `/cvc/upload/${uploadId}/state`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error('업로드 상태 업데이트 실패:', error);
+    throw error;
+  }
+};
+
+// 일일 CVC 완료 API
+export const completeDailyCvc = async (cvcId: number): Promise<BaseResponse<string>> => {
+  try {
+    const response = await authApi.post<BaseResponse<string>>(`/cvc/complete/${cvcId}`);
+    return response.data;
+  } catch (error) {
+    console.error('일일 CVC 완료 실패:', error);
+    throw error;
+  }
+};
+
+// CVC 현황 조회 API
+export const getCvcStatus = async (
+  targetDate: string
+): Promise<BaseResponse<CvcStatusResponse>> => {
+  try {
+    const response = await authApi.get<BaseResponse<CvcStatusResponse>>(
+      `/cvc/status/${targetDate}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('CVC 현황 조회 실패:', error);
+    throw error;
+  }
+};
+
 // 다른 API 호출 시 사용할 axios 인스턴스 (옵션: 인터셉터 추가 가능)
-export default authApi; // 기본으로 내보내어 다른 곳에서 import하여 사용
+export default authApi;

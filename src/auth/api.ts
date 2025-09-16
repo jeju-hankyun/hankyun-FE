@@ -115,7 +115,10 @@ interface CreateDailyCvcRequest {
   group_ids: number[]; // 최소 2개 이상
 }
 
-type WorkcationCvcUploadState = 1 | 2; // enum 대신 리터럴 유니언 타입 사용
+export const WORKCATION_CVC_UPLOAD_STATE_SUCCESS = 1 as const;
+export const WORKCATION_CVC_UPLOAD_STATE_FAILED = 2 as const;
+
+export type WorkcationCvcUploadState = typeof WORKCATION_CVC_UPLOAD_STATE_SUCCESS | typeof WORKCATION_CVC_UPLOAD_STATE_FAILED;
 
 interface UploadReportRequest {
   trip_id: number;

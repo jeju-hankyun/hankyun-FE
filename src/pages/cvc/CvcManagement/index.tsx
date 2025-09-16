@@ -7,6 +7,8 @@ import {
   CreateDailyCvcRequest,
   UpdateUploadStateRequest,
   WorkcationCvcUploadState,
+  WORKCATION_CVC_UPLOAD_STATE_SUCCESS,
+  WORKCATION_CVC_UPLOAD_STATE_FAILED,
   BaseResponse,
 } from '../../../auth/api';
 
@@ -89,7 +91,7 @@ const CvcManagementPage: React.FC = () => {
 
   // 업로드 상태 업데이트 상태
   const [uploadId, setUploadId] = useState<string>('');
-  const [uploadState, setUploadState] = useState<WorkcationCvcUploadState>(WorkcationCvcUploadState.SUCCESS);
+  const [uploadState, setUploadState] = useState<WorkcationCvcUploadState>(WORKCATION_CVC_UPLOAD_STATE_SUCCESS);
   const [updateUploadLoading, setUpdateUploadLoading] = useState(false);
   const [updateUploadMessage, setUpdateUploadMessage] = useState<string | null>(null);
   const [updateUploadError, setUpdateUploadError] = useState(false);
@@ -259,8 +261,8 @@ const CvcManagementPage: React.FC = () => {
             onChange={(e) => setUploadState(parseInt(e.target.value, 10) as WorkcationCvcUploadState)}
             disabled={updateUploadLoading}
           >
-            <option value={WorkcationCvcUploadState.SUCCESS}>SUCCESS</option>
-            <option value={WorkcationCvcUploadState.FAILED}>FAILED</option>
+            <option value={WORKCATION_CVC_UPLOAD_STATE_SUCCESS}>SUCCESS</option>
+            <option value={WORKCATION_CVC_UPLOAD_STATE_FAILED}>FAILED</option>
           </select>
         </FormGroup>
         <ActionButton onClick={handleUpdateUploadState} disabled={updateUploadLoading} bgColor="#ffc107">

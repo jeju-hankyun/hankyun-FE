@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import styled from "@emotion/styled";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import OverviewPage from "./pages/overview";
 import WorkationManagementPage from "./pages/workation-management";
 import CompetitionPage from "./pages/competition";
@@ -15,15 +17,60 @@ import {
   NotificationWidget,
 } from "./shared/globalStyles";
 import type { SidebarItem, GlobalState } from "./shared/types";
+import { logout, getAccessToken } from './auth/api';
+
+const SidebarFooter = styled.div`
+  margin-top: auto; /* Push footer to the bottom */
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+`;
+
+const AuthButton = styled.button`
+  background-color: #4a90e2;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #357ae8;
+  }
+`;
 
 const WorkationDashboard = () => {
+  const navigate = useNavigate();
   const [progress, setProgress] = useState(78);
   const [checkedInUsers] = useState(8);
   const [dDay] = useState(3);
   const [activeTab, setActiveTab] = useState("overview");
   const [notifications] = useState(4);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // 실시간 진행률 업데이트 시뮬레이션
+  useEffect(() => {
+    setIsLoggedIn(!!getAccessToken());
+  }, []);
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+
+  const handleLogoutClick = async () => {
+    try {
+      await logout();
+      alert("로그아웃되었습니다.");
+      setIsLoggedIn(false);
+      navigate('/login');
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((prev) => (prev < 100 ? prev + 1 : prev));
@@ -82,6 +129,13 @@ const WorkationDashboard = () => {
               {item.label}
             </SidebarButton>
           ))}
+          <SidebarFooter>
+            {isLoggedIn ? (
+              <AuthButton onClick={handleLogoutClick}>로그아웃</AuthButton>
+            ) : (
+              <AuthButton onClick={handleLoginClick}>로그인</AuthButton>
+            )}
+          </SidebarFooter>
         </Sidebar>
 
         <MainContent>{renderContent()}</MainContent>

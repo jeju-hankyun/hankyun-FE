@@ -1,5 +1,5 @@
 import { authApi } from './base';
-import { BaseResponse, TripDescriptionPRResponse, CreateTripDescriptionPRRequest } from './interfaces';
+import type { BaseResponse, TripDescriptionPRResponse, CreateTripDescriptionPRRequest } from './interfaces';
 
 // Trip Description PR 생성 API
 export const createTripDescriptionPR = async (

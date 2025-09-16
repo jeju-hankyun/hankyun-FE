@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { uploadProgressReport, UploadReportRequest, BaseResponse, UploadResponse } from '../../../auth/api';
+import { uploadProgressReport } from '../../../auth/api';
+import type { UploadReportRequest, BaseResponse, UploadResponse } from '../../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

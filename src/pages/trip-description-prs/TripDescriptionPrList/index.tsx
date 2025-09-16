@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { createTripDescriptionPR, approvePR, rejectPR, CreateTripDescriptionPRRequest, BaseResponse, TripDescriptionPRResponse } from '../../../auth/api';
+import { createTripDescriptionPR, approvePR, rejectPR } from '../../../auth/api';
+import type { CreateTripDescriptionPRRequest, BaseResponse, TripDescriptionPRResponse } from '../../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

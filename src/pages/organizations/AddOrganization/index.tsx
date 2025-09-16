@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { addOrganization, uploadOrganizationLogo, OrganizationCreateRequest, BaseResponse } from '../../../auth/api';
+import { addOrganization, uploadOrganizationLogo } from '../../../auth/api';
+import type { OrganizationCreateRequest, BaseResponse } from '../../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

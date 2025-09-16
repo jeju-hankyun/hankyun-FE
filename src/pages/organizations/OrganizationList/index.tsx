@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getOrganizations, OrganizationResponse, BaseResponse, CursorResponse } from '../../../auth/api';
+import { getOrganizations } from '../../../auth/api';
+import type { OrganizationResponse, BaseResponse, CursorResponse } from '../../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

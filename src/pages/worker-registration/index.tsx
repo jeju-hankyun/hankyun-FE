@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { postWorker, WorkerCreateRequest, BaseResponse } from '../../auth/api';
+import { postWorker } from '../../auth/api';
+import type { WorkerCreateRequest, BaseResponse } from '../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

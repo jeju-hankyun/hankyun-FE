@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import { getWorkcationGroups, WorkcationGroupResponse, BaseResponse, CursorResponse } from '../../../auth/api';
+import { getWorkcationGroups } from '../../../auth/api';
+import type { WorkcationGroupResponse, BaseResponse, CursorResponse } from '../../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -95,8 +96,9 @@ const WorkcationGroupListPage: React.FC = () => {
       setError(null);
       const response: BaseResponse<CursorResponse<WorkcationGroupResponse>> = await getWorkcationGroups(parseInt(organizationId, 10), currentCursor, 10); // 10개씩 로드
       if (response.data && response.data.values) {
-        setWorkcationGroups((prev) => [...prev, ...response.data.values!]);
-        setHasMore(response.data.has_next || false);
+        const data = response.data;
+        setWorkcationGroups((prev) => [...prev, ...data.values!]);
+        setHasMore(data.has_next || false);
         // 다음 커서 값은 백엔드 응답에서 next_cursor 필드로 받아야 함 (현재 OpenAPI 스펙에는 없음)
         // 임시로 마지막 그룹의 ID를 사용하거나, 백엔드에서 cursor 값을 반환하도록 수정 필요
         // 여기서는 `next_cursor` 필드가 `CursorResponse`에 없으므로 구현하지 않음. 백엔드 스펙에 따라 수정 필요.

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'; // useEffect 추가
 import styled from 'styled-components';
-import { getGoogleAuthUrl } from '../../auth/api'; // api.ts에서 함수 임포트
+import { getGoogleAuthUrl } from '../api';
 
 const LoginPageContainer = styled.div`
   display: flex;

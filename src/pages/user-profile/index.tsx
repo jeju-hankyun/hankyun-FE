@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getUserProfile, getUserProfileById, UserResponse, BaseResponse } from '../../auth/api';
+import { getUserProfile, getUserProfileById } from '../../auth/api';
+import type { UserResponse, BaseResponse } from '../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

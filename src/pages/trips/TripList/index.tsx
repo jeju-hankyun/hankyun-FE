@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import { getTrips, TripResponse, BaseResponse, CursorResponse } from '../../../auth/api';
+import { getTrips } from '../../../auth/api';
+import type { TripResponse, BaseResponse, CursorResponse } from '../../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

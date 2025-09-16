@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'; // useState 임포트
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { handleGoogleCallback, setAccessToken } from '../../auth/api'; // api.ts에서 함수 임포트
+import { handleGoogleCallback, setAccessToken } from '../api'; // api.ts에서 함수 임포트
 
 const CallbackContainer = styled.div`
   display: flex;

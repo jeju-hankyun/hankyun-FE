@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { postClubMember, ClubMemberCreateRequest, BaseResponse } from '../../auth/api';
+import { postClubMember } from '../../auth/api';
+import type { ClubMemberCreateRequest, BaseResponse } from '../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

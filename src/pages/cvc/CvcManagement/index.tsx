@@ -4,11 +4,13 @@ import {
   createDailyCvc,
   updateUploadState,
   completeDailyCvc,
+  WORKCATION_CVC_UPLOAD_STATE_SUCCESS,
+  WORKCATION_CVC_UPLOAD_STATE_FAILED,
+} from '../../../auth/api';
+import type {
   CreateDailyCvcRequest,
   UpdateUploadStateRequest,
   WorkcationCvcUploadState,
-  WORKCATION_CVC_UPLOAD_STATE_SUCCESS,
-  WORKCATION_CVC_UPLOAD_STATE_FAILED,
   BaseResponse,
 } from '../../../auth/api';
 

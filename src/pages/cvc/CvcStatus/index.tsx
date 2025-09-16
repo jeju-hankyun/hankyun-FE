@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getCvcStatus, CvcStatusResponse, MatchProgressResponse, BaseResponse } from '../../../auth/api';
+import { getCvcStatus } from '../../../auth/api';
+import type { CvcStatusResponse, BaseResponse } from '../../../auth/api';
 
 const PageContainer = styled.div`
   padding: 20px;

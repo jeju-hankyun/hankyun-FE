@@ -107,11 +107,11 @@ const TripListPage: React.FC = () => {
         <TripListContainer>
           {trips.map((trip) => (
             <TripCard key={trip.trip_id}>
-              <TripPlace>{trip.place}</TripPlace>
-              <TripDetail><strong>ID:</strong> {trip.trip_id}</TripDetail>
-              <TripDetail><strong>그룹 ID:</strong> {trip.workcation_group_id}</TripDetail>
-              <TripDetail><strong>시작일:</strong> {trip.start_date.split('T')[0]}</TripDetail>
-              <TripDetail><strong>종료일:</strong> {trip.end_date.split('T')[0]}</TripDetail>
+              <TripPlace>{trip.place ? trip.place : '없음'}</TripPlace>
+              <TripDetail><strong>ID:</strong> {trip.trip_id ? trip.trip_id : '없음'}</TripDetail>
+              <TripDetail><strong>그룹 ID:</strong> {trip.workcation_group_id ? trip.workcation_group_id : '없음'}</TripDetail>
+              <TripDetail><strong>시작일:</strong> {trip.start_date ? trip.start_date.split('T')[0] : '없음'}</TripDetail>
+              <TripDetail><strong>종료일:</strong> {trip.end_date ? trip.end_date.split('T')[0] : '없음'}</TripDetail>
             </TripCard>
           ))}
         </TripListContainer>

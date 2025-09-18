@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'; // useState 임포트
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { handleGoogleCallback, setAccessToken } from '../api'; // api.ts에서 함수 임포트
+import { reissueToken } from '../api';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -13,42 +13,20 @@ const CallbackContainer = styled.div`
 `;
 
 const GoogleAuthCallback: React.FC = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null); // 에러 메시지 상태 추가
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const code = params.get('code');
-    const state = params.get('state');
-
-    if (code && state) {
-      console.log('Authorization Code:', code);
-      console.log('State:', state);
-
-      handleGoogleCallback(code, state)
-        .then(response => {
-          console.log('로그인 성공:', response);
-          // 백엔드 응답에서 access_token 추출 및 저장 (응답 구조에 따라 수정 필요)
-          const newAccessToken = response.access_token; // 예시: 백엔드가 응답 본문에 access_token을 반환한다고 가정
-          if (newAccessToken) {
-            setAccessToken(newAccessToken);
-            console.log('Access Token 저장 완료:', newAccessToken);
-          }
-          navigate('/overview');
-        })
-        .catch(error => {
-          console.error('로그인 실패:', error);
-          setErrorMessage('Google 로그인에 실패했습니다. 다시 시도해주세요.'); // 에러 메시지 설정
-          // navigate('/login?error=auth_failed'); // 리다이렉션 제거
-        });
-
-    } else {
-      console.error('Code 또는 State가 없습니다.');
-      setErrorMessage('잘못된 접근입니다. 로그인 페이지로 돌아가세요.'); // 에러 메시지 설정
-      // navigate('/login?error=missing_params'); // 리다이렉션 제거
-    }
-  }, [location, navigate]);
+    reissueToken()
+      .then(() => {
+        console.log('Access Token 재발급 완료');
+        navigate('/overview');
+      })
+      .catch(error => {
+        console.error('로그인 실패:', error);
+        setErrorMessage('Google 로그인에 실패했습니다. 다시 시도해주세요.');
+      });
+  }, [navigate]);
 
   return (
     <CallbackContainer>
@@ -62,7 +40,7 @@ const GoogleAuthCallback: React.FC = () => {
 };
 
 const ErrorMessage = styled.p`
-  color: red; // 에러 메시지 색상만 유지
+  color: red;
   font-weight: bold;
   margin-top: 20px;
 `;

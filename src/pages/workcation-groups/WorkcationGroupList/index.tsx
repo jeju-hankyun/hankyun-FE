@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { getWorkcationGroups } from '../../../auth/api';
-import type { WorkcationGroupResponse, BaseResponse, CursorResponse } from '../../../auth/api';
+import type { WorkcationGroupResponse, BaseResponse, CursorResponse } from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -101,7 +101,6 @@ const WorkcationGroupListPage: React.FC = () => {
         setHasMore(data.has_next || false);
         // 다음 커서 값은 백엔드 응답에서 next_cursor 필드로 받아야 함 (현재 OpenAPI 스펙에는 없음)
         // 임시로 마지막 그룹의 ID를 사용하거나, 백엔드에서 cursor 값을 반환하도록 수정 필요
-        // 여기서는 `next_cursor` 필드가 `CursorResponse`에 없으므로 구현하지 않음. 백엔드 스펙에 따라 수정 필요.
         // setCursor(response.data.next_cursor); // 예시
       } else {
         setError(response.message || '워케이션 그룹 목록을 불러오지 못했습니다.');
@@ -142,12 +141,12 @@ const WorkcationGroupListPage: React.FC = () => {
         <GroupListContainer>
           {workcationGroups.map((group) => (
             <GroupCard key={group.workcation_group_id}>
-              <GroupName>{group.place} 워케이션</GroupName>
-              <GroupDetail><strong>ID:</strong> {group.workcation_group_id}</GroupDetail>
-              <GroupDetail><strong>목적:</strong> {group.purpose}</GroupDetail>
-              <GroupDetail><strong>예상 비용:</strong> {group.money} 원</GroupDetail>
-              <GroupDetail><strong>기간:</strong> {group.start_date} ~ {group.end_date}</GroupDetail>
-              <GroupDetail><strong>매니저:</strong> {group.manager}</GroupDetail>
+              <GroupName>{group.place ? `${group.place} 워케이션` : '없음'}</GroupName>
+              <GroupDetail><strong>ID:</strong> {group.workcation_group_id ? group.workcation_group_id : '없음'}</GroupDetail>
+              <GroupDetail><strong>목적:</strong> {group.purpose ? group.purpose : '없음'}</GroupDetail>
+              <GroupDetail><strong>예상 비용:</strong> {group.money ? `${group.money} 원` : '없음'}</GroupDetail>
+              <GroupDetail><strong>기간:</strong> {group.start_date && group.end_date ? `${group.start_date} ~ ${group.end_date}` : '없음'}</GroupDetail>
+              <GroupDetail><strong>매니저:</strong> {group.manager ? group.manager : '없음'}</GroupDetail>
             </GroupCard>
           ))}
         </GroupListContainer>

@@ -49,13 +49,6 @@ const OverviewPage: React.FC<OverviewPageProps> = ({ globalState, onNavigate }) 
 
   const statusCards = [
     {
-      title: "활성 워케이션",
-      value: "Online",
-      subtitle: "제주 오피스 A",
-      icon: "✅",
-      colorClass: "online",
-    },
-    {
       title: "전체 진행률",
       value: `${progress}%`,
       subtitle: "목표 대비",

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom'; // useNavigate 임포트
 import { getOrganizations } from '../../../auth/api';
-import type { OrganizationResponse, BaseResponse, CursorResponse } from '../../../auth/api';
+import type { OrganizationResponse, BaseResponse, CursorResponse } from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -89,7 +90,45 @@ const LoadMoreButton = styled.button`
   }
 `;
 
+const CreateOrgButton = styled.button`
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: auto;
+  margin-top: 20px;
+  &:hover {
+    background-color: #0056b3;
+  }
+  &:disabled {
+    background-color: #a0cbed;
+    cursor: not-allowed;
+  }
+`;
+
+const CreateGroupButton = styled.button`
+  background-color: #28a745;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  &:hover {
+    background-color: #218838;
+  }
+  &:disabled {
+    background-color: #94d3a2;
+    cursor: not-allowed;
+  }
+`;
+
 const OrganizationListPage: React.FC = () => {
+  const navigate = useNavigate(); // useNavigate 훅 사용
   const [organizations, setOrganizations] = useState<OrganizationResponse[]>([]);
   const [cursorId, setCursorId] = useState<number | undefined>(undefined);
   const [hasMore, setHasMore] = useState(true);
@@ -101,12 +140,14 @@ const OrganizationListPage: React.FC = () => {
       setLoading(true);
       setError(null);
       const response: BaseResponse<CursorResponse<OrganizationResponse>> = await getOrganizations(currentCursorId, 10); // 10개씩 로드
-      if (response.data && response.data.values) {
-        setOrganizations((prev) => [...prev, ...response.data.values!]);
-        setHasMore(response.data.has_next || false);
+      
+      const data = response.data; // response.data를 별도 변수에 할당하여 null 체크
+      if (data && data.values) {
+        setOrganizations((prev) => [...prev, ...data.values!]);
+        setHasMore(data.has_next || false);
         // 다음 커서 ID는 마지막 조직의 ID로 설정 (백엔드 구현에 따라 달라질 수 있음)
-        if (response.data.values.length > 0) {
-          setCursorId(response.data.values[response.data.values.length - 1].organization_id);
+        if (data.values.length > 0) {
+          setCursorId(data.values[data.values.length - 1].organization_id);
         }
       } else {
         setError(response.message || '조직 목록을 불러오지 못했습니다.');
@@ -135,17 +176,25 @@ const OrganizationListPage: React.FC = () => {
     <PageContainer>
       <SectionTitle>조직 목록</SectionTitle>
       {error && <ErrorText>{error}</ErrorText>}
-      {organizations.length === 0 && !loading && !error ? (
-        <p style={{ textAlign: 'center' }}>등록된 조직이 없습니다.</p>
+      {organizations.length === 0 && !loading ? (
+        <div style={{ textAlign: 'center' }}>
+          <p>등록된 조직이 없습니다. 새로운 조직을 생성해주세요.</p>
+          <CreateOrgButton onClick={() => navigate('/organizations/add')}>
+            조직 생성
+          </CreateOrgButton>
+        </div>
       ) : (
         <OrganizationListContainer>
           {organizations.map((org) => (
             <OrganizationCard key={org.organization_id}>
               <OrgLogo src={org.logo || "https://via.placeholder.com/80?text=Logo"} alt={org.name + " logo"} />
-              <OrgName>{org.name}</OrgName>
-              <OrgDescription>{org.description}</OrgDescription>
-              <OrgDetail>유형: {org.type}</OrgDetail>
-              <OrgDetail>ID: {org.organization_id}</OrgDetail>
+              <OrgName>{org.name ? org.name : '없음'}</OrgName>
+              <OrgDescription>{org.description ? org.description : '없음'}</OrgDescription>
+              <OrgDetail>유형: {org.type ? org.type : '없음'}</OrgDetail>
+              <OrgDetail>ID: {org.organization_id ? org.organization_id : '없음'}</OrgDetail>
+              <CreateGroupButton onClick={() => navigate(`/organizations/${org.organization_id}/workcation-groups/create`)}>
+                워케이션 그룹 생성
+              </CreateGroupButton>
             </OrganizationCard>
           ))}
         </OrganizationListContainer>

@@ -12,7 +12,7 @@ import type {
   UpdateUploadStateRequest,
   WorkcationCvcUploadState,
   BaseResponse,
-} from '../../../auth/api';
+} from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -77,9 +77,9 @@ const ActionButton = styled.button<{ bgColor?: string }>`
   }
 `;
 
-const MessageText = styled.p<{ isError?: boolean }>`
+const MessageText = styled.p<{ $isError?: boolean }>`
   margin-top: 15px;
-  color: ${props => (props.isError ? 'red' : 'green')};
+  color: ${props => (props.$isError ? 'red' : 'green')};
   font-weight: bold;
 `;
 
@@ -238,7 +238,7 @@ const CvcManagementPage: React.FC = () => {
           <ActionButton type="submit" disabled={createCvcLoading}>
             {createCvcLoading ? '생성 중...' : '일일 CVC 생성'}
           </ActionButton>
-          {createCvcMessage && <MessageText isError={createCvcError}>{createCvcMessage}</MessageText>}
+          {createCvcMessage && <MessageText $isError={createCvcError}>{createCvcMessage}</MessageText>}
         </form>
       </FormCard>
 
@@ -270,7 +270,7 @@ const CvcManagementPage: React.FC = () => {
         <ActionButton onClick={handleUpdateUploadState} disabled={updateUploadLoading} bgColor="#ffc107">
           {updateUploadLoading ? '업데이트 중...' : '상태 업데이트'}
         </ActionButton>
-        {updateUploadMessage && <MessageText isError={updateUploadError}>{updateUploadMessage}</MessageText>}
+        {updateUploadMessage && <MessageText $isError={updateUploadError}>{updateUploadMessage}</MessageText>}
       </FormCard>
 
       <FormCard>
@@ -289,7 +289,7 @@ const CvcManagementPage: React.FC = () => {
         <ActionButton onClick={handleCompleteDailyCvc} disabled={completeCvcLoading} bgColor="#6f42c1">
           {completeCvcLoading ? '완료 중...' : 'CVC 완료'}
         </ActionButton>
-        {completeCvcMessage && <MessageText isError={completeCvcError}>{completeCvcMessage}</MessageText>}
+        {completeCvcMessage && <MessageText $isError={completeCvcError}>{completeCvcMessage}</MessageText>}
       </FormCard>
     </PageContainer>
   );

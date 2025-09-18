@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PlanManagementContainer,
   HeaderSection,
@@ -18,73 +18,89 @@ import {
   ActionButton,
   FormContainer,
   FormGroup,
-  FormRow,
   Label,
-  Input,
   Textarea,
   SubmitButton,
 } from './style';
-
-interface PR {
-  id: string;
-  title: string;
-  author: string;
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
-  description: string;
-}
-
+import {
+  createTripDescriptionPR,
+  approvePR,
+  rejectPR,
+  getTripDescriptionPRs,
+} from '../../auth/api/tripDescriptionPR';
+import type { BaseResponse, CursorResponse, TripDescriptionPRResponse, CreateTripDescriptionPRRequest } from '../../auth/api/interfaces';
 
 const PlanManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'prs' | 'create'>('prs');
-  const [formData, setFormData] = useState({
-    title: '',
+  const [prs, setPrs] = useState<TripDescriptionPRResponse[]>([]);
+  const [cursorId, setCursorId] = useState<number | undefined>(undefined);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<CreateTripDescriptionPRRequest>({
+    writer_id: 1, // 임시 writer_id
     description: '',
-    startDate: '',
-    endDate: '',
-    participants: '',
-    location: ''
   });
 
-  const mockPRs: PR[] = [
-    {
-      id: '1',
-      title: '제주도 워케이션 계획서 - Q2 2024',
-      author: '김워케이션',
-      status: 'pending',
-      createdAt: '2024-03-15',
-      description: '제주도에서 진행할 2분기 워케이션 계획서입니다. 총 10명의 팀원이 참여 예정입니다.'
-    },
-    {
-      id: '2',
-      title: '부산 해운대 워케이션 제안',
-      author: '이바다',
-      status: 'approved',
-      createdAt: '2024-03-10',
-      description: '부산 해운대에서 진행할 3일간의 워케이션 계획입니다.'
-    },
-    {
-      id: '3',
-      title: '강릉 워케이션 기획안',
-      author: '박산바다',
-      status: 'rejected',
-      createdAt: '2024-03-05',
-      description: '강릉에서 진행할 워케이션 기획안입니다. 예산 조정이 필요합니다.'
+  const fetchPRs = async (currentCursorId?: number) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response: BaseResponse<CursorResponse<TripDescriptionPRResponse>> = await getTripDescriptionPRs(currentCursorId, 10);
+      const data = response.data;
+      if (data && data.values) {
+        setPrs((prev) => [...prev, ...data.values!]);
+        setHasMore(data.has_next || false);
+        if (data.values.length > 0) {
+          setCursorId(data.values[data.values.length - 1].trip_description_pr_id);
+        }
+      } else {
+        setError(response.message || 'PR 목록을 불러오지 못했습니다.');
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error('Error fetching PRs:', err);
+      setError('PR 목록을 불러오는 중 오류가 발생했습니다.');
+      setHasMore(false);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchPRs();
+  }, []);
+
+  const handleLoadMore = () => {
+    if (hasMore && !loading) {
+      fetchPRs(cursorId);
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('계획서 제출:', formData);
-    alert('계획서가 성공적으로 제출되었습니다!');
-    setFormData({
-      title: '',
-      description: '',
-      startDate: '',
-      endDate: '',
-      participants: '',
-      location: ''
-    });
+    // 임시 tripDescriptionId (백엔드와 연동 시 실제 ID 사용)
+    const dummyTripDescriptionId = 1;
+    try {
+      const response = await createTripDescriptionPR(dummyTripDescriptionId, formData);
+      if (response.data) {
+        alert('계획서가 성공적으로 제출되었습니다!');
+        setFormData({
+          writer_id: 1, // 다시 임시 ID 설정
+          description: '',
+        });
+        // PR 목록 새로고침
+        setPrs([]); // 기존 PR 초기화
+        setCursorId(undefined); // 커서 초기화
+        setHasMore(true); // 다시 더 로드 가능하도록 설정
+        fetchPRs();
+      } else {
+        alert(response.message || '계획서 제출에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('계획서 제출 실패:', error);
+      alert('계획서 제출 중 오류가 발생했습니다.');
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -94,12 +110,49 @@ const PlanManagement: React.FC = () => {
     });
   };
 
+  const handleApprovePR = async (prId: number) => {
+    try {
+      const response = await approvePR(prId);
+      if (response.data) {
+        alert('PR이 승인되었습니다.');
+        // PR 목록 새로고침
+        setPrs([]);
+        setCursorId(undefined);
+        setHasMore(true);
+        fetchPRs();
+      } else {
+        alert(response.message || 'PR 승인에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('PR 승인 실패:', error);
+      alert('PR 승인 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleRejectPR = async (prId: number) => {
+    try {
+      const response = await rejectPR(prId);
+      if (response.data) {
+        alert('PR이 반려되었습니다.');
+        // PR 목록 새로고침
+        setPrs([]);
+        setCursorId(undefined);
+        setHasMore(true);
+        fetchPRs();
+      } else {
+        alert(response.message || 'PR 반려에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('PR 반려 실패:', error);
+      alert('PR 반려 중 오류가 발생했습니다.');
+    }
+  };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return '검토중';
-      case 'approved': return '승인';
-      case 'rejected': return '반려';
+      case 'PENDING': return '검토중';
+      case 'APPROVED': return '승인';
+      case 'REJECTED': return '반려';
       default: return '알 수 없음';
     }
   };
@@ -132,43 +185,56 @@ const PlanManagement: React.FC = () => {
         {activeTab === 'prs' ? (
           <div>
             <SectionTitle>제출된 계획서 PR 목록</SectionTitle>
-            {mockPRs.map((pr) => (
-              <PRCard key={pr.id}>
-                <PRHeader>
-                  <PRTitle>{pr.title}</PRTitle>
-                  <StatusBadge status={pr.status}>
-                    {getStatusText(pr.status)}
-                  </StatusBadge>
-                </PRHeader>
-                <PRMeta>
-                  작성자: {pr.author} | 작성일: {pr.createdAt}
-                </PRMeta>
-                <PRDescription>
-                  {pr.description}
-                </PRDescription>
-                <PRActions>
-                  <ActionButton variant="primary">
-                    상세보기
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {prs.length === 0 && !loading && !error ? (
+              <p style={{ textAlign: 'center' }}>제출된 계획서 PR이 없습니다.</p>
+            ) : (
+              <>
+                {prs.map((pr) => (
+                  <PRCard key={pr.trip_description_pr_id}>
+                    <PRHeader>
+                      <PRTitle>PR ID: {pr.trip_description_pr_id}</PRTitle>
+                      <StatusBadge status={pr.state}>
+                        {getStatusText(pr.state)}
+                      </StatusBadge>
+                    </PRHeader>
+                    <PRMeta>
+                      작성자 ID: {pr.writer_id} | 작성일: 없음 {/* created_at 필드가 없어 임시 처리 */}
+                    </PRMeta>
+                    <PRDescription>
+                      {pr.description ? pr.description : '설명 없음'}
+                    </PRDescription>
+                    <PRActions>
+                      <ActionButton variant="primary">
+                        상세보기
+                      </ActionButton>
+                      {pr.state === 'PENDING' && (
+                        <>
+                          <ActionButton variant="success" onClick={() => handleApprovePR(pr.trip_description_pr_id)}>
+                            승인
+                          </ActionButton>
+                          <ActionButton variant="danger" onClick={() => handleRejectPR(pr.trip_description_pr_id)}>
+                            반려
+                          </ActionButton>
+                        </>
+                      )}
+                    </PRActions>
+                  </PRCard>
+                ))}
+                {loading && <p>로딩 중...</p>}
+                {hasMore && (
+                  <ActionButton onClick={handleLoadMore} disabled={loading}>
+                    더 불러오기
                   </ActionButton>
-                  {pr.status === 'pending' && (
-                    <>
-                      <ActionButton variant="success">
-                        승인
-                      </ActionButton>
-                      <ActionButton variant="danger">
-                        반려
-                      </ActionButton>
-                    </>
-                  )}
-                </PRActions>
-              </PRCard>
-            ))}
+                )}
+              </>
+            )}
           </div>
         ) : (
           <div>
             <SectionTitle>새 워케이션 계획서 작성</SectionTitle>
             <FormContainer onSubmit={handleFormSubmit}>
-              <FormGroup>
+              {/* <FormGroup>
                 <Label>계획서 제목</Label>
                 <Input
                   type="text"
@@ -178,7 +244,7 @@ const PlanManagement: React.FC = () => {
                   placeholder="예: 제주도 워케이션 계획서 - 2024 Q2"
                   required
                 />
-              </FormGroup>
+              </FormGroup> */}
 
               <FormGroup>
                 <Label>계획 설명</Label>
@@ -191,7 +257,7 @@ const PlanManagement: React.FC = () => {
                 />
               </FormGroup>
 
-              <FormRow>
+              {/* <FormRow>
                 <FormGroup>
                   <Label>시작일</Label>
                   <Input
@@ -236,7 +302,7 @@ const PlanManagement: React.FC = () => {
                   placeholder="예: 제주도 서귀포시"
                   required
                 />
-              </FormGroup>
+              </FormGroup> */}
 
               <SubmitButton type="submit">
                 계획서 제출

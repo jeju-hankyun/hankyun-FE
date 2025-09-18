@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom'; // useParams 임포트
 import { createWorkcationGroup } from '../../../auth/api';
-import type { CreateWorkcationGroupRequest, BaseResponse, WorkcationGroupResponse } from '../../../auth/api';
+import type { CreateWorkcationGroupRequest, BaseResponse, WorkcationGroupResponse } from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
   padding: 20px;

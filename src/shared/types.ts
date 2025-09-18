@@ -12,9 +12,9 @@ export interface Tool {
   description: string;
   icon: string;
   gradient: string;
-  status: 'success' | 'warning' | 'error';
-  statusText: string;
-  badgeText: string;
+  status?: 'success' | 'warning' | 'error';
+  statusText?: string;
+  badgeText?: string;
 }
 
 export interface Event {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { getCvcStatus } from '../../../auth/api';
-import type { CvcStatusResponse, BaseResponse } from '../../../auth/api';
+import type { CvcStatusResponse, BaseResponse } from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -137,23 +137,27 @@ const CvcStatusPage: React.FC = () => {
           <LoadingText>CVC 현황 로딩 중...</LoadingText>
         ) : cvcStatus ? (
           <>
-            <CvcDetail><strong>CVC ID:</strong> {cvcStatus.cvc_id}</CvcDetail>
-            <CvcDetail><strong>날짜:</strong> {cvcStatus.cvc_date}</CvcDetail>
-            <CvcDetail><strong>완료 여부:</strong> {cvcStatus.is_completed === 1 ? '완료' : '진행 중'}</CvcDetail>
-            <CvcDetail><strong>총 매치 수:</strong> {cvcStatus.matches}</CvcDetail>
+            <CvcDetail><strong>CVC ID:</strong> {cvcStatus.cvc_id ? cvcStatus.cvc_id : '없음'}</CvcDetail>
+            <CvcDetail><strong>날짜:</strong> {cvcStatus.cvc_date ? cvcStatus.cvc_date : '없음'}</CvcDetail>
+            <CvcDetail><strong>완료 여부:</strong> {cvcStatus.is_completed !== null ? (cvcStatus.is_completed === 1 ? '완료' : '진행 중') : '정보 없음'}</CvcDetail>
+            <CvcDetail><strong>총 매치 수:</strong> {cvcStatus.matches ? cvcStatus.matches : '없음'}</CvcDetail>
             {cvcStatus.winner && <CvcDetail><strong>승자 그룹 ID:</strong> {cvcStatus.winner} 🏆</CvcDetail>}
             
             <h4 style={{ marginTop: '20px', color: '#333' }}>팀별 진행률:</h4>
-            <ProgressList>
-              {cvcStatus.progress
-                .sort((a, b) => b.progress - a.progress) // 진행률 높은 순으로 정렬
-                .map((teamProgress, index) => (
-                  <ProgressItem key={teamProgress.group_id} isWinner={cvcStatus.winner === teamProgress.group_id}>
-                    <span>그룹 ID: {teamProgress.group_id}</span>
-                    <span>진행률: {teamProgress.progress}</span>
-                  </ProgressItem>
-                ))}
-            </ProgressList>
+            {cvcStatus.progress && cvcStatus.progress.length > 0 ? (
+              <ProgressList>
+                {cvcStatus.progress
+                  .sort((a, b) => b.progress - a.progress) // 진행률 높은 순으로 정렬
+                  .map((teamProgress, index) => (
+                    <ProgressItem key={teamProgress.group_id} isWinner={cvcStatus.winner === teamProgress.group_id}>
+                      <span>그룹 ID: {teamProgress.group_id ? teamProgress.group_id : '없음'}</span>
+                      <span>진행률: {teamProgress.progress ? teamProgress.progress : '없음'}</span>
+                    </ProgressItem>
+                  ))}
+              </ProgressList>
+            ) : (
+              <p style={{ textAlign: 'center', color: '#777' }}>팀별 진행률 정보가 없습니다.</p>
+            )}
           </>
         ) : (
           <p style={{ textAlign: 'center' }}>선택된 날짜의 CVC 현황이 없습니다.</p>

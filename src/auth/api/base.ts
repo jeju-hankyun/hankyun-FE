@@ -36,26 +36,23 @@ authApi.interceptors.request.use(
   }
 );
 
-// Response 인터셉터: 401 에러 발생 시 토큰 재발급 시도
 authApi.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-    // 401 에러이고, 재시도 플래그가 없으며, 재발급 API 호출이 아닌 경우
-    if (error.response.status === 401 && !originalRequest._retry && error.config.url !== '/auth/reissue') {
+    const originalRequest = error.config as typeof error.config & { _retry?: boolean };
+    if (error.response?.status === 401 && !originalRequest._retry && error.config.url !== '/auth/reissue') {
       originalRequest._retry = true;
       try {
         const newAccessToken = await reissueToken();
-        accessToken = newAccessToken; // 새로 발급받은 Access Token 저장
+        accessToken = newAccessToken;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return authApi(originalRequest); // 기존 요청 재시도
+        return authApi(originalRequest);
       } catch (refreshError) {
         console.error('토큰 재발급 실패 및 로그인 페이지로 리다이렉트:', refreshError);
-        // 토큰 재발급 실패 시 로그인 페이지로 리다이렉트
         if (navigateFunction) {
           navigateFunction('/login');
         } else {
-          window.location.href = '/login'; // navigate 함수가 없을 경우 fallback
+          window.location.href = '/login';
         }
         return Promise.reject(refreshError);
       }
@@ -64,17 +61,15 @@ authApi.interceptors.response.use(
   }
 );
 
-export const reissueToken = async (): Promise<string> => {
-  try {
-    const response = await authApi.post(`${API_BASE_URL}/auth/reissue`);
-    // 서버에서 Authorization 헤더로 새로운 access token을 반환한다고 가정
-    const newAccessToken = response.headers.authorization;
-    if (!newAccessToken) {
-      throw new Error("새로운 Access Token이 응답 헤더에 없습니다.");
-    }
-    return newAccessToken.split(' ')[1]; // "Bearer " 제거 후 반환
-  } catch (error) {
-    console.error('토큰 재발급 실패:', error);
-    throw error;
+// base.ts
+export async function reissueToken(): Promise<string> {
+  const res = await fetch(`${API_BASE_URL}/auth/reissue`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    throw new Error('토큰 재발급 실패');
   }
-};
+  const data = await res.json();
+  return data.access_token;
+}

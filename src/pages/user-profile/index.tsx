@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { getUserProfile, getUserProfileById } from '../../auth/api';
-import type { UserResponse, BaseResponse } from '../../auth/api';
+import type { UserResponse, BaseResponse } from '../../auth/api/interfaces';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -130,11 +130,11 @@ const UserProfilePage: React.FC = () => {
           <ErrorText>{myProfileError}</ErrorText>
         ) : myProfile ? (
           <>
-            <ProfileItem><strong>ID:</strong> {myProfile.user_id}</ProfileItem>
-            <ProfileItem><strong>이름:</strong> {myProfile.name}</ProfileItem>
-            <ProfileItem><strong>이메일:</strong> {myProfile.email}</ProfileItem>
-            <ProfileItem><strong>프로필:</strong> {myProfile.profile}</ProfileItem>
-            <ProfileItem><strong>역할:</strong> {myProfile.role}</ProfileItem>
+            <ProfileItem><strong>ID:</strong> {myProfile.user_id ? myProfile.user_id : '없음'}</ProfileItem>
+            <ProfileItem><strong>이름:</strong> {myProfile.name ? myProfile.name : '없음'}</ProfileItem>
+            <ProfileItem><strong>이메일:</strong> {myProfile.email ? myProfile.email : '없음'}</ProfileItem>
+            <ProfileItem><strong>프로필:</strong> {myProfile.profile ? myProfile.profile : '없음'}</ProfileItem>
+            <ProfileItem><strong>역할:</strong> {myProfile.role ? myProfile.role : '없음'}</ProfileItem>
           </>
         ) : (
           <p>로그인 후 프로필을 확인할 수 있습니다.</p>
@@ -159,11 +159,11 @@ const UserProfilePage: React.FC = () => {
           <p>다른 사용자 프로필 로딩 중...</p>
         ) : otherUserProfile ? (
           <>
-            <ProfileItem><strong>ID:</strong> {otherUserProfile.user_id}</ProfileItem>
-            <ProfileItem><strong>이름:</strong> {otherUserProfile.name}</ProfileItem>
-            <ProfileItem><strong>이메일:</strong> {otherUserProfile.email}</ProfileItem>
-            <ProfileItem><strong>프로필:</strong> {otherUserProfile.profile}</ProfileItem>
-            <ProfileItem><strong>역할:</strong> {otherUserProfile.role}</ProfileItem>
+            <ProfileItem><strong>ID:</strong> {otherUserProfile.user_id ? otherUserProfile.user_id : '없음'}</ProfileItem>
+            <ProfileItem><strong>이름:</strong> {otherUserProfile.name ? otherUserProfile.name : '없음'}</ProfileItem>
+            <ProfileItem><strong>이메일:</strong> {otherUserProfile.email ? otherUserProfile.email : '없음'}</ProfileItem>
+            <ProfileItem><strong>프로필:</strong> {otherUserProfile.profile ? otherUserProfile.profile : '없음'}</ProfileItem>
+            <ProfileItem><strong>역할:</strong> {otherUserProfile.role ? otherUserProfile.role : '없음'}</ProfileItem>
           </>
         ) : (
           <p>조회할 사용자 ID를 입력해주세요.</p>

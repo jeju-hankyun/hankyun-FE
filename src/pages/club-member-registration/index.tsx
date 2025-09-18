@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { postClubMember } from '../../auth/api';
-import type { ClubMemberCreateRequest, BaseResponse } from '../../auth/api';
+import type { ClubMemberCreateRequest, BaseResponse } from '../../auth/api/interfaces';
 
 const PageContainer = styled.div`
   padding: 20px;
@@ -58,9 +58,9 @@ const SubmitButton = styled.button`
   }
 `;
 
-const MessageText = styled.p<{ isError?: boolean }>`
+const MessageText = styled.p<{ $isError?: boolean }>`
   margin-top: 15px;
-  color: ${props => (props.isError ? 'red' : 'green')};
+  color: ${props => (props.$isError ? 'red' : 'green')};
   font-weight: bold;
 `;
 
@@ -123,7 +123,7 @@ const ClubMemberRegistrationPage: React.FC = () => {
           <SubmitButton type="submit" disabled={loading}>
             {loading ? '등록 중...' : '등록'}
           </SubmitButton>
-          {message && <MessageText isError={isError}>{message}</MessageText>}
+          {message && <MessageText $isError={isError}>{message}</MessageText>}
         </form>
       </FormCard>
     </PageContainer>

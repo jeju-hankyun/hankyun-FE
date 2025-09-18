@@ -1,5 +1,27 @@
 import { authApi } from './base';
-import type { BaseResponse, TripDescriptionPRResponse, CreateTripDescriptionPRRequest } from './interfaces';
+import type { BaseResponse, TripDescriptionPRResponse, CreateTripDescriptionPRRequest, CursorResponse } from './interfaces';
+
+// Trip Description PR 목록 조회 API
+export const getTripDescriptionPRs = async (
+  cursorId?: number,
+  limit: number = 10
+): Promise<BaseResponse<CursorResponse<TripDescriptionPRResponse>>> => {
+  try {
+    const response = await authApi.get<BaseResponse<CursorResponse<TripDescriptionPRResponse>>>(
+      `/trip-description-prs`,
+      {
+        params: {
+          cursor_id: cursorId,
+          limit: limit,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Trip Description PR 목록 조회 실패:', error);
+    throw error;
+  }
+};
 
 // Trip Description PR 생성 API
 export const createTripDescriptionPR = async (

@@ -400,6 +400,20 @@ export const HistoryResult = styled.div<{ result: 'victory' | 'defeat' | 'draw' 
   }};
 `;
 
+export const LoadingText = styled.p`
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+  margin-top: 20px;
+`;
+
+export const ErrorText = styled.p`
+  text-align: center;
+  font-size: 18px;
+  color: red;
+  margin-top: 20px;
+`;
+
 export const CountdownTimer = styled.div`
   font-size: 20px;
   font-weight: 600;

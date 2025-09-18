@@ -376,39 +376,6 @@ export const DetailedSectionTitle = styled.h3`
   gap: 12px;
 `;
 
-export const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-`;
-
-export const StatCard = styled.div`
-  background: rgba(255, 255, 255, 0.04);
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: center;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
-  }
-`;
-
-export const StatValue = styled.div`
-  font-size: 24px;
-  font-weight: 700;
-  color: #4a90e2;
-  margin-bottom: 4px;
-`;
-
-export const StatLabel = styled.div`
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-`;
-
 export const LeaderboardContainer = styled.div`
   background: rgba(255, 255, 255, 0.04);
   border-radius: 12px;

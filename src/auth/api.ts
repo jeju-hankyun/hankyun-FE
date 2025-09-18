@@ -177,7 +177,6 @@ authApi.interceptors.request.use(
   (config) => {
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
-      console.log(1);
     }
     return config;
   },
@@ -253,12 +252,23 @@ export const logout = async (): Promise<any> => {
 export const reissueToken = async (): Promise<string> => {
   try {
     const response = await authApi.post(`${API_BASE_URL}/auth/reissue`);
-    // 서버에서 Authorization 헤더로 새로운 access token을 반환한다고 가정
-    const newAccessToken = response.headers.authorization;
-    if (!newAccessToken) {
-      throw new Error("새로운 Access Token이 응답 헤더에 없습니다.");
+
+    // 다양한 가능성 체크
+    let token = response.data?.access_token ||
+                response.data?.data?.access_token ||
+                response.headers?.authorization ||
+                response.headers?.Authorization;
+
+    // Bearer 접두사가 있으면 제거
+    if (token && token.startsWith('Bearer ')) {
+      token = token.split(' ')[1];
     }
-    return newAccessToken.split(' ')[1]; // "Bearer " 제거 후 반환
+
+    if (!token) {
+      throw new Error('토큰을 찾을 수 없습니다.');
+    }
+
+    return token;
   } catch (error) {
     console.error('토큰 재발급 실패:', error);
     throw error;

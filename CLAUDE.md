@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a React + TypeScript + Vite application using React 19 with a minimal setup for modern web development.
+This is a React + TypeScript + Vite application for "Hankyeon" - a comprehensive workation (work + vacation) management platform focused on Jeju Island operations. The application uses React 19 with modern tooling and Emotion CSS-in-JS for styling.
 
 ## Development Commands
 
@@ -16,57 +16,97 @@ This is a React + TypeScript + Vite application using React 19 with a minimal se
 ## Architecture
 
 - **Frontend Framework**: React 19 with TypeScript
-- **Build Tool**: Vite with @vitejs/plugin-react
-- **Linting**: ESLint with TypeScript integration
-- **Entry Point**: `src/main.tsx` renders the root App component
-- **Main Component**: `src/App.tsx` imports and renders WorkationDashboard
-- **Primary Component**: `src/WorkationDashboard.tsx` - A comprehensive dashboard component for workation management with real-time features
+- **Build Tool**: Vite with @vitejs/plugin-react configured for Emotion
+- **Styling**: Emotion CSS-in-JS with styled-components
+- **Routing**: React Router DOM v7 with centralized routing
+- **HTTP Client**: Axios for API communication
+- **Linting**: ESLint with TypeScript integration and React plugins
 
-## Application Features
+## Application Structure
 
-This is a "Workation" (work + vacation) management dashboard that provides:
+This is a feature-rich workation management platform with the following key areas:
 
-- **Real-time Progress Tracking**: Live progress updates with simulated real-time data
-- **Team Management**: User check-in/check-out tracking and capacity monitoring
-- **Office Management**: Jeju Island office locations with availability and booking status
-- **Competition System**: Corporate vs corporate workation competition tracking
-- **Event Timeline**: Real-time activity feed and notifications
-- **Responsive Design**: Mobile-friendly dashboard with modern glassmorphism UI
+### Core Features
+- **Authentication System**: Google OAuth integration with JWT token management
+- **Dashboard**: Central workation management dashboard with real-time features
+- **Organization Management**: Multi-organization support with hierarchical structure
+- **Workation Groups**: Group creation and management within organizations
+- **Trip Management**: Trip planning and execution for workation groups
+- **CVC (Competition) System**: Corporate vs corporate workation competitions
+- **Office Management**: Jeju Island office space management and booking
+- **User Management**: Worker and club member registration systems
 
-## Project Structure
+### Authentication & API Layer
 
-- `src/` - Source code directory
-  - `main.tsx` - Application entry point with StrictMode
-  - `App.tsx` - Simple wrapper component that renders WorkationDashboard
-  - `WorkationDashboard.tsx` - Main dashboard component (780+ lines with embedded CSS-in-JS)
-  - `App.css` & `index.css` - Global styling
-  - `assets/` - Static assets (images, etc.)
-  - `vite-env.d.ts` - Vite environment type definitions
-- `public/` - Public static assets served directly
-- TypeScript configuration split across multiple files:
-  - `tsconfig.json` - Base configuration with project references
-  - `tsconfig.app.json` - Application-specific settings
-  - `tsconfig.node.json` - Node.js specific settings
+- **Auth Module** (`src/auth/`): Complete authentication system with Google OAuth
+  - `api.ts` - Main authentication API functions and token management
+  - `api/` directory - Modular API services organized by feature
+  - Token-based authentication with automatic refresh handling
+  - Navigation integration for auth flows
 
-## Code Architecture Notes
+### Page Structure
 
-- **Single File Component**: The main functionality is contained within `WorkationDashboard.tsx` using inline styles and CSS-in-JS
-- **State Management**: Uses React hooks (useState, useEffect) for local state management
-- **Styling Approach**: Combination of inline styles and CSS-in-JS embedded in the component
-- **Component Structure**: Functional components with modern React 19 patterns
-- **Data Simulation**: Mock data and simulated real-time updates using setInterval
+The application uses a hierarchical page structure under `src/pages/`:
+
+- **Core Management**: `organizations/`, `workcation-groups/`, `trips/`
+- **User Features**: `user-profile/`, `worker-registration/`, `club-member-registration/`
+- **Competition System**: `competition/`, `battle-results/`, `cvc/`
+- **Operations**: `office-management/`, `plan-management/`, `overview/`
+
+### Shared Resources
+
+- `src/shared/globalStyles.ts` - Emotion styled-components for consistent UI
+- `src/shared/types.ts` - TypeScript interfaces for global state and components
+- Glassmorphism design system with dark theme and gradient backgrounds
 
 ## Key Dependencies
 
-- **React 19** - Latest React version with modern features
-- **Vite** - Fast build tool and dev server
-- **TypeScript** - Type safety and modern JavaScript features
-- **ESLint** - Code linting with React hooks and refresh plugins
+- **React 19** - Latest React with modern features
+- **Emotion** - CSS-in-JS with babel plugin integration
+- **React Router DOM v7** - Modern routing with nested routes
+- **Axios** - HTTP client for API communication
+- **Styled-components** - Additional CSS-in-JS utilities
+- **TypeScript 5.8** - Type safety with modern features
 
-## ESLint Configuration
+## Development Configuration
 
-Uses modern flat config format with:
-- TypeScript ESLint integration
-- React hooks rules
-- React refresh for Vite
+### Vite Configuration
+- Emotion integration with jsxImportSource and babel plugin
+- React plugin with Emotion-specific settings
+
+### ESLint Configuration
+- Modern flat config format with TypeScript integration
+- React hooks and refresh rules for development
 - Browser globals configuration
+
+### TypeScript Configuration
+- Project references setup with separate app and node configurations
+- Modern ES2020 target with strict type checking
+
+## API Architecture
+
+The API layer is organized into modular services:
+- `auth.ts` - Authentication and token management
+- `user.ts` - User profile and registration
+- `organization.ts` - Organization management
+- `workcationGroup.ts` - Workation group operations
+- `trip.ts` - Trip planning and management
+- `cvc.ts` - Competition system
+- `interfaces.ts` - Shared TypeScript interfaces
+- `base.ts` - Common API utilities
+
+## Routing Structure
+
+Centralized routing in `AuthRouter.tsx` with authenticated routes:
+- Organization-based URLs: `/organizations/:id/workcation-groups`
+- Nested resource routes: `/workcation-groups/:id/trips`
+- Feature-specific routes: `/cvc/manage`, `/profile`, etc.
+- Google OAuth callback handling
+
+## Code Conventions
+
+- **Component Files**: Use `.tsx` extension for React components
+- **Styling**: Emotion styled-components with glassmorphism design patterns
+- **API Calls**: Centralized in `src/auth/api/` with proper error handling
+- **Type Safety**: Comprehensive TypeScript interfaces in shared types
+- **State Management**: React hooks with global state interfaces

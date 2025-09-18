@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { reissueToken } from '../api';
+import { reissueToken, setAccessToken } from '../api';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -18,8 +18,8 @@ const GoogleAuthCallback: React.FC = () => {
 
   useEffect(() => {
     reissueToken()
-      .then(() => {
-        console.log('Access Token 재발급 완료');
+      .then((token) => {
+        setAccessToken(token);
         navigate('/overview');
       })
       .catch(error => {

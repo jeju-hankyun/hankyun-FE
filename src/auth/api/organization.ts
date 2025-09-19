@@ -7,7 +7,7 @@ export const getOrganizations = async (
   size: number = 20
 ): Promise<BaseResponse<CursorResponse<OrganizationResponse>>> => {
   try {
-    const response = await authApi.get<BaseResponse<CursorResponse<OrganizationResponse>>>(`/organizations/`, {
+  const response = await authApi.get<BaseResponse<CursorResponse<OrganizationResponse>>>(`/organizations/`, {
       params: { cursorId, size },
     });
     return response.data;
@@ -22,7 +22,7 @@ export const addOrganization = async (
   data: OrganizationCreateRequest
 ): Promise<BaseResponse<string>> => {
   try {
-    const response = await authApi.post<BaseResponse<string>>(`/organizations/`, data);
+  const response = await authApi.post<BaseResponse<string>>(`/organizations/`, data);
     return response.data;
   } catch (error) {
     console.error('조직/회사 등록 실패:', error);

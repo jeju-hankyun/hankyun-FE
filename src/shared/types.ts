@@ -40,6 +40,7 @@ export interface SidebarItem {
   id: string;
   icon: string;
   label: string;
+  color?: string;
 }
 
 export interface GlobalState {

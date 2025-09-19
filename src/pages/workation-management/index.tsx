@@ -109,7 +109,7 @@ const WorkationManagementPage: React.FC<WorkationManagementPageProps> = ({
     return (
       <WorkationManagementContainer>
         <div>
-          <PageTitle>🏖️ 워케이션 관리 시스템</PageTitle>
+          <PageTitle>워케이션 관리 시스템</PageTitle>
           <PageSubtitle>
             팀의 워케이션을 체계적으로 관리하고 성공적인 경험을 만들어보세요
           </PageSubtitle>
@@ -147,7 +147,7 @@ const WorkationManagementPage: React.FC<WorkationManagementPageProps> = ({
 
         {/* 관리 도구 */}
         <DetailedSection>
-          <DetailedSectionTitle>🛠️ 관리 도구</DetailedSectionTitle>
+          <DetailedSectionTitle>관리 도구</DetailedSectionTitle>
           <ToolGrid>
             {tools.map((tool) => (
               <ToolItemComponent key={tool.id} tool={tool} onClick={() => handleToolClick(tool.id)} />
@@ -217,7 +217,7 @@ const WorkationManagementPage: React.FC<WorkationManagementPageProps> = ({
     <ManagementContainer>
       <SectionHeader>
         <SectionTitle>워케이션 관리 도구</SectionTitle>
-        <RefreshButton onClick={handleRefresh}>🔄</RefreshButton>
+        <RefreshButton onClick={handleRefresh}>R</RefreshButton>
       </SectionHeader>
 
       {tools.map((tool) => (

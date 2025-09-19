@@ -336,7 +336,7 @@ const OfficeManagementPage: React.FC<OfficeManagementPageProps> = ({
               <StatusBadge type="occupied">{occupiedCount} Occupied</StatusBadge>
             </>
           ) : (
-            <StatusBadge type="unavailable">정보 없음</StatusBadge>
+            <StatusBadge type="available">정보 없음</StatusBadge>
           )}
         </SectionTitle>
         <RefreshButton onClick={handleRefresh}>🔄</RefreshButton>

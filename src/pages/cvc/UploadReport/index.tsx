@@ -4,66 +4,137 @@ import { uploadProgressReport } from '../../../auth/api';
 import type { UploadReportRequest, BaseResponse, UploadResponse } from '../../../auth/api';
 
 const PageContainer = styled.div`
-  padding: 20px;
-  background-color: #f0f2f5;
+  padding: 32px;
+  background: #f8fafc;
   min-height: 100vh;
-  color: #333;
+  color: #1e293b;
 `;
 
-const SectionTitle = styled.h2`
-  color: #007bff;
-  margin-bottom: 20px;
+const PageHeader = styled.div`
+  margin-bottom: 32px;
+`;
+
+const PageTitle = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+`;
+
+const PageSubtitle = styled.p`
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
 `;
 
 const FormCard = styled.div`
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  border: 1px solid #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+`;
+
+const CardTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &::before {
+    content: '📤';
+    font-size: 18px;
+  }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  
   label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
   }
+  
   input[type="number"],
   input[type="text"] {
-    width: calc(100% - 22px); // padding 고려
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
     font-size: 16px;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    
+    &:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
   }
 `;
 
 const SubmitButton = styled.button`
-  background-color: #28a745;
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
   color: white;
-  padding: 12px 20px;
+  padding: 16px 24px;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: 600;
   width: 100%;
-  margin-top: 10px;
+  margin-top: 16px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  
   &:hover {
-    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
   }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
   &:disabled {
-    background-color: #94d3a2;
+    background: #d1d5db;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
 const MessageText = styled.p<{ isError?: boolean }>`
-  margin-top: 15px;
-  color: ${props => (props.isError ? 'red' : 'green')};
-  font-weight: bold;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  background: ${props => props.isError ? '#fef2f2' : '#f0fdf4'};
+  color: ${props => props.isError ? '#dc2626' : '#16a34a'};
+  border: 1px solid ${props => props.isError ? '#fecaca' : '#bbf7d0'};
 `;
 
 const UploadReportPage: React.FC = () => {
@@ -121,7 +192,10 @@ const UploadReportPage: React.FC = () => {
 
   return (
     <PageContainer>
-      <SectionTitle>진행 보고서 업로드</SectionTitle>
+      <PageHeader>
+        <PageTitle>진행 보고서 업로드</PageTitle>
+        <PageSubtitle>워케이션 진행 상황을 업로드하세요</PageSubtitle>
+      </PageHeader>
       <FormCard>
         <form onSubmit={handleSubmit}>
           <FormGroup>

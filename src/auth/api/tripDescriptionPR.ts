@@ -17,8 +17,12 @@ export const getTripDescriptionPRs = async (
       }
     );
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Trip Description PR 목록 조회 실패:', error);
+    // 404 오류인 경우 더 명확한 메시지 제공
+    if (error.response?.status === 404) {
+      console.warn('Trip Description PR API 엔드포인트가 아직 구현되지 않았습니다.');
+    }
     throw error;
   }
 };

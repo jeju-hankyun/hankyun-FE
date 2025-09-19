@@ -2,59 +2,97 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { getTrips } from '../../../auth/api';
-import type { TripResponse, BaseResponse, CursorResponse } from '../../../auth/api';
+import type { TripResponse, BaseResponse, CursorResponse } from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
-  padding: 20px;
-  background-color: #f0f2f5;
+  padding: 32px;
+  background: #f8fafc;
   min-height: 100vh;
-  color: #333;
+  color: #1e293b;
 `;
 
-const SectionTitle = styled.h2`
-  color: #007bff;
-  margin-bottom: 20px;
+const PageHeader = styled.div`
+  margin-bottom: 32px;
+`;
+
+const PageTitle = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+`;
+
+const PageSubtitle = styled.p`
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
 `;
 
 const TripListContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 24px;
 `;
 
 const TripCard = styled.div`
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
 `;
 
 const TripPlace = styled.h3`
-  margin: 0 0 10px 0;
-  color: #333;
+  margin: 0 0 12px 0;
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 600;
 `;
 
 const TripDetail = styled.p`
   font-size: 14px;
-  color: #666;
-  margin: 5px 0;
+  color: #64748b;
+  margin: 6px 0;
+  line-height: 1.5;
+  
   strong {
-    color: #555;
+    color: #374151;
+    font-weight: 600;
   }
 `;
 
 const LoadingText = styled.p`
   text-align: center;
-  font-size: 18px;
-  color: #555;
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 500;
 `;
 
 const ErrorText = styled.p`
   text-align: center;
-  font-size: 18px;
-  color: red;
+  font-size: 16px;
+  color: #dc2626;
+  font-weight: 500;
 `;
 
 const TripListPage: React.FC = () => {
@@ -74,9 +112,33 @@ const TripListPage: React.FC = () => {
       setLoading(true);
       setError(null);
       const response: BaseResponse<CursorResponse<TripResponse>> = await getTrips(parseInt(workcationGroupId, 10));
+      console.log('Trip 목록 조회 응답:', response);
+      console.log('response.data:', response.data);
+      console.log('response.data.values:', response.data?.values);
+      
+      // API 응답 구조를 유연하게 처리
+      let tripsData = null;
+      
+      // response.data가 CursorResponse 구조인 경우
       if (response.data && response.data.values) {
-        setTrips(response.data.values);
+        tripsData = response.data.values;
+        console.log('Received trips (from response.data):', tripsData);
+      }
+      // response 자체가 CursorResponse 구조인 경우 (직접 응답)
+      else if ((response as any).values) {
+        tripsData = (response as any).values;
+        console.log('Received trips (from direct response):', tripsData);
+      }
+      // response.data가 직접 배열인 경우
+      else if (Array.isArray(response.data)) {
+        tripsData = response.data;
+        console.log('Received trips (from array data):', tripsData);
+      }
+      
+      if (tripsData && tripsData.length > 0) {
+        setTrips(tripsData);
       } else {
+        console.log('No valid trips data found:', response);
         setError(response.message || 'Trip 목록을 불러오지 못했습니다.');
       }
     } catch (err) {
@@ -99,7 +161,10 @@ const TripListPage: React.FC = () => {
 
   return (
     <PageContainer>
-      <SectionTitle>Trip 목록 (워케이션 그룹 ID: {workcationGroupId})</SectionTitle>
+      <PageHeader>
+        <PageTitle>Trip 목록</PageTitle>
+        <PageSubtitle>워케이션 그룹 ID: {workcationGroupId}</PageSubtitle>
+      </PageHeader>
       {error && <ErrorText>{error}</ErrorText>}
       {trips.length === 0 && !loading && !error ? (
         <p style={{ textAlign: 'center' }}>등록된 Trip이 없습니다.</p>

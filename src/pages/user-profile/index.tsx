@@ -4,59 +4,139 @@ import { getUserProfile, getUserProfileById } from '../../auth/api';
 import type { UserResponse, BaseResponse } from '../../auth/api/interfaces';
 
 const PageContainer = styled.div`
-  padding: 20px;
-  background-color: #f0f2f5;
+  padding: 32px;
+  background: #f8fafc;
   min-height: 100vh;
-  color: #333;
+  color: #1e293b;
 `;
 
-const SectionTitle = styled.h2`
-  color: #007bff;
-  margin-bottom: 20px;
+const PageHeader = styled.div`
+  margin-bottom: 32px;
+`;
+
+const PageTitle = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+`;
+
+const PageSubtitle = styled.p`
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
 `;
 
 const ProfileCard = styled.div`
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  border: 1px solid #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+`;
+
+const CardTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &::before {
+    content: '👤';
+    font-size: 18px;
+  }
 `;
 
 const ProfileItem = styled.p`
-  margin: 8px 0;
+  margin: 12px 0;
   font-size: 16px;
+  line-height: 1.5;
+  
   strong {
-    color: #555;
+    color: #374151;
+    font-weight: 600;
   }
 `;
 
 const InputGroup = styled.div`
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 24px;
+  
   input {
     flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    
+    &:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
   }
+  
   button {
-    background-color: #28a745;
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
     color: white;
-    padding: 10px 15px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 12px;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    
     &:hover {
-      background-color: #218838;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    &:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
   }
 `;
 
 const ErrorText = styled.p`
-  color: red;
-  margin-top: 10px;
+  color: #dc2626;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  font-weight: 500;
 `;
 
 const UserProfilePage: React.FC = () => {
@@ -122,7 +202,10 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <PageContainer>
-      <SectionTitle>내 프로필</SectionTitle>
+      <PageHeader>
+        <PageTitle>사용자 프로필</PageTitle>
+        <PageSubtitle>내 프로필과 다른 사용자 정보를 확인하세요</PageSubtitle>
+      </PageHeader>
       <ProfileCard>
         {loadingMyProfile ? (
           <p>내 프로필 로딩 중...</p>
@@ -141,7 +224,7 @@ const UserProfilePage: React.FC = () => {
         )}
       </ProfileCard>
 
-      <SectionTitle>다른 사용자 프로필 조회</SectionTitle>
+      <CardTitle>다른 사용자 프로필 조회</CardTitle>
       <ProfileCard>
         <InputGroup>
           <input

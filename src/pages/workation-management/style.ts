@@ -41,7 +41,7 @@ export const SectionTitle = styled.h2`
 export const PageTitle = styled.h1`
   font-size: 28px;
   font-weight: 700;
-  color: #ffffff;
+  color: #000000;
   margin-bottom: 8px;
   background: linear-gradient(135deg, #4a90e2, #7b68ee);
   -webkit-background-clip: text;
@@ -51,7 +51,7 @@ export const PageTitle = styled.h1`
 
 export const PageSubtitle = styled.p`
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 32px;
 `;
 
@@ -80,36 +80,35 @@ export const ToolGrid = styled.div`
 export const ToolItem = styled.div`
   display: flex;
   align-items: center;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
+  padding: 24px;
+  background: white;
   border-radius: 16px;
   margin-bottom: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 2px solid #f1f5f9;
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.25);
+    background: white;
+    border-color: #8b5cf6;
     transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
 
     &::before {
-      opacity: 1;
+      height: 6px;
     }
   }
 `;
@@ -142,12 +141,12 @@ export const ToolInfo = styled.div`
 export const ToolName = styled.div`
   font-weight: 600;
   margin-bottom: 4px;
-  color: #ffffff;
+  color: #1e293b;
 `;
 
 export const ToolDescription = styled.div`
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: #374151;
 `;
 
 export const DetailedSection = styled.div`

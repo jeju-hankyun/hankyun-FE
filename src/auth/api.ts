@@ -1,5 +1,36 @@
 import axios from 'axios';
-// import { NavigateFunction } from 'react-router-dom'; // NavigateFunction 타입 임포트 제거
+import type { 
+  CursorResponse, 
+  BaseResponse, 
+  UserResponse, 
+  WorkerCreateRequest, 
+  ClubMemberCreateRequest,
+  OrganizationResponse,
+  OrganizationCreateRequest,
+  WorkcationGroupResponse,
+  CreateWorkcationGroupRequest,
+  CreateTripRequest,
+  TripResponse,
+  CreateTripDescriptionPRRequest,
+  TripDescriptionPRResponse,
+  CreateDailyCvcRequest,
+  WorkcationCvcUploadState,
+  UploadReportRequest,
+  UploadResponse,
+  UpdateUploadStateRequest,
+  MatchProgressResponse,
+  CvcStatusResponse,
+  TourApiResponse,
+  TourApiItem,
+  TourApiParams
+} from './api/interfaces';
+
+// CVC 관련 상수들을 re-export
+export { 
+  WORKCATION_CVC_UPLOAD_STATE_SUCCESS,
+  WORKCATION_CVC_UPLOAD_STATE_FAILED,
+  type WorkcationCvcUploadState
+} from './api/interfaces';
 
 // useNavigate 훅이 반환하는 함수의 시그니처와 일치하는 사용자 정의 타입 정의
 type CustomNavigateFunction = (to: string, options?: { replace?: boolean; state?: any }) => void;
@@ -14,150 +45,6 @@ const authApi = axios.create({
 let accessToken: string | null = null;
 let navigateFunction: CustomNavigateFunction | null = null; // CustomNavigateFunction 사용
 
-// --- Common Interfaces ---
-
-
-export interface CursorResponse<T> {
-  values: T[] | null;
-  has_next: boolean | null;
-}
-
-export interface BaseResponse<T> {
-  message: string;
-  data: T | null;
-}
-
-// --- User related Interfaces ---
-interface UserResponse {
-  user_id: number;
-  name: string;
-  email: string;
-  profile: string;
-  role: string;
-}
-
-interface WorkerCreateRequest {
-  company_id: number;
-  job_title: string;
-  rank: string;
-}
-
-interface ClubMemberCreateRequest {
-  club_id: number;
-}
-
-// --- Organization related Interfaces ---
-interface OrganizationResponse {
-  organization_id: number;
-  owner_id: number;
-  type: string;
-  name: string;
-  logo: string;
-  description: string;
-}
-
-interface OrganizationCreateRequest {
-  type: string;
-  name: string;
-  description: string;
-}
-
-// --- Workcation Group related Interfaces ---
-interface WorkcationGroupResponse {
-  workcation_group_id: number;
-  organization_id: number;
-  manager: number;
-  place: string;
-  money: number;
-  purpose: string;
-  start_date: string;
-  end_date: string;
-}
-
-interface CreateWorkcationGroupRequest {
-  place: string;
-  money: number;
-  purpose: string;
-  start_date: string;
-  end_date: string;
-}
-
-// --- Trip related Interfaces ---
-interface CreateTripRequest {
-  place: string;
-  start_date: string;
-  end_date: string;
-}
-
-interface TripResponse {
-  trip_id: number;
-  workcation_group_id: number;
-  place: string;
-  start_date: string;
-  end_date: string;
-}
-
-// --- Trip Description PR related Interfaces ---
-interface CreateTripDescriptionPRRequest {
-  writer_id: number;
-  description: string;
-}
-
-interface TripDescriptionPRResponse {
-  trip_description_pr_id: number;
-  trip_description_id: number;
-  writer_id: number;
-  description: string;
-  state: string;
-}
-
-// --- CVC related Interfaces ---
-interface CreateDailyCvcRequest {
-  target_date: string; // YYYY-MM-DD
-  group_ids: number[]; // 최소 2개 이상
-}
-
-export const WORKCATION_CVC_UPLOAD_STATE_SUCCESS = 1 as const;
-export const WORKCATION_CVC_UPLOAD_STATE_FAILED = 2 as const;
-
-export type WorkcationCvcUploadState = typeof WORKCATION_CVC_UPLOAD_STATE_SUCCESS | typeof WORKCATION_CVC_UPLOAD_STATE_FAILED;
-
-interface UploadReportRequest {
-  trip_id: number;
-  match_id: number;
-  document_id: number;
-  longitude: number;
-  latitude: number;
-}
-
-interface UploadResponse {
-  workcation_cvc_upload_id: number;
-  trip_id: number;
-  workcation_match_id: number;
-  workcation_document_id: number;
-  longitude: number;
-  latitude: number;
-  state: WorkcationCvcUploadState;
-  created_at: string;
-}
-
-interface UpdateUploadStateRequest {
-  state: WorkcationCvcUploadState;
-}
-
-interface MatchProgressResponse {
-  group_id: number;
-  progress: number;
-}
-
-interface CvcStatusResponse {
-  cvc_id: number;
-  cvc_date: string; // YYYY-MM-DD
-  is_completed: 0 | 1; // 0: 진행중, 1: 완료
-  matches: number;
-  progress: MatchProgressResponse[];
-  winner?: number | null; // 완료되지 않았으면 null
-}
 
 // --- Existing functions ---
 export const setAccessToken = (token: string) => {
@@ -424,8 +311,12 @@ export const createTrip = async (
       data
     );
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Trip 생성 실패:', error);
+    // 500 오류에 대한 더 명확한 메시지 제공
+    if (error.response?.status === 500) {
+      console.warn('Trip 생성 API에서 서버 내부 오류가 발생했습니다.');
+    }
     throw error;
   }
 };
@@ -439,8 +330,61 @@ export const getTrips = async (
       `/workcation-groups/${workcationGroupId}/trips`
     );
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Trip 목록 조회 실패:', error);
+    // 500 오류에 대한 더 명확한 메시지 제공
+    if (error.response?.status === 500) {
+      console.warn('Trip 목록 조회 API에서 서버 내부 오류가 발생했습니다.');
+    }
+    throw error;
+  }
+};
+
+// --- TourAPI functions ---
+// 한국관광공사 혼잡도 예측 API
+export const getTourApiCongestionData = async (
+  params: {
+    tAtsNm?: string; // 관광지명
+    areaCd?: string; // 지역 코드 (제주도: 51)
+    signguCd?: string; // 시군구 코드 (제주시: 50110, 서귀포시: 50130)
+    numOfRows?: number; // 가져올 데이터 수 (기본: 30)
+  }
+): Promise<TourApiResponse> => {
+  try {
+    const serviceKey = import.meta.env.VITE_TOUR_API_KEY;
+    if (!serviceKey) {
+      throw new Error('TourAPI 서비스 키가 설정되지 않았습니다.');
+    }
+
+    const queryParams = new URLSearchParams({
+      serviceKey,
+      MobileOS: 'ETC',
+      MobileApp: 'Hankyeon',
+      numOfRows: (params.numOfRows || 30).toString(),
+      pageNo: '1',
+      _type: 'json',
+      ...(params.tAtsNm && { tAtsNm: params.tAtsNm }),
+      ...(params.areaCd && { areaCd: params.areaCd }),
+      ...(params.signguCd && { signguCd: params.signguCd }),
+    });
+
+    const response = await fetch(
+      `http://apis.data.go.kr/B551011/TatsCnctrRateService/tatsCnctrRatedList?${queryParams}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`TourAPI 요청 실패: ${response.status}`);
+    }
+
+    const data: TourApiResponse = await response.json();
+    
+    if (data.response.header.resultCode !== '0000') {
+      throw new Error(`TourAPI 오류: ${data.response.header.resultMsg}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error('TourAPI 혼잡도 데이터 조회 실패:', error);
     throw error;
   }
 };

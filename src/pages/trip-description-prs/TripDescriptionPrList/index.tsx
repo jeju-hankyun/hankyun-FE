@@ -1,44 +1,101 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { createTripDescriptionPR, approvePR, rejectPR } from '../../../auth/api';
-import type { CreateTripDescriptionPRRequest, BaseResponse, TripDescriptionPRResponse } from '../../../auth/api';
+import type { CreateTripDescriptionPRRequest, BaseResponse, TripDescriptionPRResponse } from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
-  padding: 20px;
-  background-color: #f0f2f5;
+  padding: 32px;
+  background: #f8fafc;
   min-height: 100vh;
-  color: #333;
+  color: #1e293b;
 `;
 
-const SectionTitle = styled.h2`
-  color: #007bff;
-  margin-bottom: 20px;
+const PageHeader = styled.div`
+  margin-bottom: 32px;
+`;
+
+const PageTitle = styled.h1`
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+`;
+
+const PageSubtitle = styled.p`
+  font-size: 16px;
+  color: #64748b;
+  margin: 0;
 `;
 
 const FormCard = styled.div`
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  border: 1px solid #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+`;
+
+const CardTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &::before {
+    content: '📝';
+    font-size: 16px;
+  }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  
   label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
   }
+  
   input[type="text"],
+  input[type="number"],
   textarea {
-    width: calc(100% - 22px); // padding 고려
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
     font-size: 16px;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    
+    &:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
   }
+  
   textarea {
     resize: vertical;
     min-height: 80px;
@@ -46,27 +103,43 @@ const FormGroup = styled.div`
 `;
 
 const ActionButton = styled.button<{ bgColor?: string }>`
-  background-color: ${props => props.bgColor || '#007bff'};
+  background: ${props => props.bgColor ? `linear-gradient(135deg, ${props.bgColor}, ${props.bgColor}dd)` : 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)'};
   color: white;
-  padding: 10px 15px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
   margin-right: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  
   &:hover {
-    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
   &:disabled {
-    background-color: #a0cbed;
+    background: #d1d5db;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
 const MessageText = styled.p<{ isError?: boolean }>`
-  margin-top: 15px;
-  color: ${props => (props.isError ? 'red' : 'green')};
-  font-weight: bold;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  background: ${props => props.isError ? '#fef2f2' : '#f0fdf4'};
+  color: ${props => props.isError ? '#dc2626' : '#16a34a'};
+  border: 1px solid ${props => props.isError ? '#fecaca' : '#bbf7d0'};
 `;
 
 const TripDescriptionPrListPage: React.FC = () => {
@@ -173,10 +246,13 @@ const TripDescriptionPrListPage: React.FC = () => {
 
   return (
     <PageContainer>
-      <SectionTitle>Trip Description PR 관리</SectionTitle>
+      <PageHeader>
+        <PageTitle>Trip Description PR 관리</PageTitle>
+        <PageSubtitle>워케이션 계획서 PR을 생성하고 관리하세요</PageSubtitle>
+      </PageHeader>
 
       <FormCard>
-        <h3>PR 생성</h3>
+        <CardTitle>PR 생성</CardTitle>
         <form onSubmit={handleCreatePR}>
           <FormGroup>
             <label htmlFor="tripDescriptionId">Trip Description ID:</label>
@@ -217,7 +293,7 @@ const TripDescriptionPrListPage: React.FC = () => {
       </FormCard>
 
       <FormCard>
-        <h3>PR 승인/거절</h3>
+        <CardTitle>PR 승인/거절</CardTitle>
         <FormGroup>
           <label htmlFor="prIdToAct">PR ID:</label>
           <input

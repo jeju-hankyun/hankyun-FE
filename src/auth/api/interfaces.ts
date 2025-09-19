@@ -1,5 +1,4 @@
-export type CustomNavigateFunction = (to: string, options?: { replace?: boolean; state?: any }) => void;
-
+// --- Common Interfaces ---
 export interface CursorResponse<T> {
   values: T[] | null;
   has_next: boolean | null;
@@ -10,6 +9,7 @@ export interface BaseResponse<T> {
   data: T | null;
 }
 
+// --- User related Interfaces ---
 export interface UserResponse {
   user_id: number;
   name: string;
@@ -28,6 +28,7 @@ export interface ClubMemberCreateRequest {
   club_id: number;
 }
 
+// --- Organization related Interfaces ---
 export interface OrganizationResponse {
   organization_id: number;
   owner_id: number;
@@ -43,6 +44,7 @@ export interface OrganizationCreateRequest {
   description: string;
 }
 
+// --- Workcation Group related Interfaces ---
 export interface WorkcationGroupResponse {
   workcation_group_id: number;
   organization_id: number;
@@ -62,6 +64,7 @@ export interface CreateWorkcationGroupRequest {
   end_date: string;
 }
 
+// --- Trip related Interfaces ---
 export interface CreateTripRequest {
   place: string;
   start_date: string;
@@ -76,6 +79,7 @@ export interface TripResponse {
   end_date: string;
 }
 
+// --- Trip Description PR related Interfaces ---
 export interface CreateTripDescriptionPRRequest {
   writer_id: number;
   description: string;
@@ -89,6 +93,7 @@ export interface TripDescriptionPRResponse {
   state: string;
 }
 
+// --- CVC related Interfaces ---
 export interface CreateDailyCvcRequest {
   target_date: string; // YYYY-MM-DD
   group_ids: number[]; // 최소 2개 이상
@@ -98,10 +103,6 @@ export const WORKCATION_CVC_UPLOAD_STATE_SUCCESS = 1 as const;
 export const WORKCATION_CVC_UPLOAD_STATE_FAILED = 2 as const;
 
 export type WorkcationCvcUploadState = typeof WORKCATION_CVC_UPLOAD_STATE_SUCCESS | typeof WORKCATION_CVC_UPLOAD_STATE_FAILED;
-
-export interface UpdateUploadStateRequest {
-  state: WorkcationCvcUploadState;
-}
 
 export interface UploadReportRequest {
   trip_id: number;
@@ -122,6 +123,10 @@ export interface UploadResponse {
   created_at: string;
 }
 
+export interface UpdateUploadStateRequest {
+  state: WorkcationCvcUploadState;
+}
+
 export interface MatchProgressResponse {
   group_id: number;
   progress: number;
@@ -134,4 +139,32 @@ export interface CvcStatusResponse {
   matches: number;
   progress: MatchProgressResponse[];
   winner?: number | null; // 완료되지 않았으면 null
+}
+
+// --- TourAPI related Interfaces ---
+export interface TourApiResponse {
+  response: {
+    header: {
+      resultCode: string;
+      resultMsg: string;
+    };
+    body: {
+      items: {
+        item: TourApiItem[];
+      };
+    };
+  };
+}
+
+export interface TourApiItem {
+  baseYmd: string; // 기준일자 (YYYYMMDD)
+  cnctrRate: string; // 혼잡도 (%)
+  tAtsNm: string; // 관광지명
+}
+
+export interface TourApiParams {
+  tAtsNm?: string; // 관광지명
+  areaCd?: string; // 지역 코드
+  signguCd?: string; // 시군구 코드
+  numOfRows?: number; // 가져올 데이터 수
 }

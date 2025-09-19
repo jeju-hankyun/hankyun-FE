@@ -58,9 +58,14 @@ const PlanManagement: React.FC = () => {
         setError(response.message || 'PR 목록을 불러오지 못했습니다.');
         setHasMore(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching PRs:', err);
-      setError('PR 목록을 불러오는 중 오류가 발생했습니다.');
+      // 404 오류인 경우 백엔드 API가 아직 구현되지 않음을 알림
+      if (err.response?.status === 404) {
+        setError('Trip Description PR API가 아직 구현되지 않았습니다.');
+      } else {
+        setError('PR 목록을 불러오는 중 오류가 발생했습니다.');
+      }
       setHasMore(false);
     } finally {
       setLoading(false);

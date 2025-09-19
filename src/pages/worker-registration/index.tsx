@@ -31,20 +31,6 @@ const FormCard = styled.div`
   }
 `;
 
-const CardTitle = styled.h2`
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 24px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  &::before {
-    content: '👷';
-    font-size: 18px;
-  }
-`;
 
 const PageHeader = styled.div`
   margin-bottom: 32px;

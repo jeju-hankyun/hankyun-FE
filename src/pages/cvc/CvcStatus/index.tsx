@@ -219,7 +219,7 @@ const CvcStatusPage: React.FC = () => {
               <ProgressList>
                 {cvcStatus.progress
                   .sort((a, b) => b.progress - a.progress) // 진행률 높은 순으로 정렬
-                  .map((teamProgress, index) => (
+                  .map((teamProgress) => (
                     <ProgressItem key={teamProgress.group_id} isWinner={cvcStatus.winner === teamProgress.group_id}>
                       <span>그룹 ID: {teamProgress.group_id ? teamProgress.group_id : '없음'}</span>
                       <span>진행률: {teamProgress.progress ? teamProgress.progress : '없음'}</span>

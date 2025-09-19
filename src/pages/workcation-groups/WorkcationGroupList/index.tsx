@@ -11,21 +11,11 @@ const PageContainer = styled.div`
   color: #1e293b;
 `;
 
-const PageHeader = styled.div`
-  margin-bottom: 32px;
-`;
-
 const PageTitle = styled.h1`
   font-size: 28px;
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 8px 0;
-`;
-
-const PageSubtitle = styled.p`
-  font-size: 16px;
-  color: #64748b;
-  margin: 0;
 `;
 
 const GroupListContainer = styled.div`

@@ -1,5 +1,6 @@
 import axios from 'axios';
-import type { CustomNavigateFunction } from './interfaces';
+// useNavigate 훅이 반환하는 함수의 시그니처와 일치하는 사용자 정의 타입 정의
+type CustomNavigateFunction = (to: string, options?: { replace?: boolean; state?: any }) => void;
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

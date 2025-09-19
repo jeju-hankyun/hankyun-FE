@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { uploadProgressReport } from '../../../auth/api';
-import type { UploadReportRequest, BaseResponse, UploadResponse } from '../../../auth/api';
+import type { UploadReportRequest, BaseResponse, UploadResponse } from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
   padding: 32px;
@@ -48,20 +48,6 @@ const FormCard = styled.div`
   }
 `;
 
-const CardTitle = styled.h2`
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 24px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  &::before {
-    content: '📤';
-    font-size: 18px;
-  }
-`;
 
 const FormGroup = styled.div`
   margin-bottom: 20px;

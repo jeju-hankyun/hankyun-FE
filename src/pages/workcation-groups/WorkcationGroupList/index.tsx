@@ -5,8 +5,8 @@ import { getWorkcationGroups } from '../../../auth/api';
 import type { WorkcationGroupResponse, BaseResponse, CursorResponse } from '../../../auth/api/interfaces';
 
 const PageContainer = styled.div`
-  padding: 32px;
-  background: #f8fafc;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   min-height: 100vh;
   color: #1e293b;
 `;
@@ -35,26 +35,14 @@ const GroupListContainer = styled.div`
 `;
 
 const GroupCard = styled.div`
-  background: white;
-  padding: 32px;
-  border-radius: 20px;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
+  border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
-  }
   
   &:hover {
     transform: translateY(-4px);
@@ -150,21 +138,21 @@ const ActionButton = styled.button`
 `;
 
 const ViewTripsButton = styled.button`
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  padding: 12px 20px;
+  padding: 10px 16px;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
   margin-top: 12px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
   
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
   }
   
   &:disabled {
@@ -262,10 +250,7 @@ const WorkcationGroupListPage: React.FC = () => {
 
   return (
     <PageContainer>
-      <PageHeader>
-        <PageTitle>워케이션 그룹 목록</PageTitle>
-        <PageSubtitle>조직 ID: {organizationId}</PageSubtitle>
-      </PageHeader>
+      <PageTitle>워케이션 그룹 목록 (조직 ID: {organizationId})</PageTitle>
       {error && <ErrorText>{error}</ErrorText>}
 
       {loading ? (

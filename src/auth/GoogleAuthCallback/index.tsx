@@ -16,6 +16,7 @@ const GoogleAuthCallback: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // 백엔드에서 직접 Google OAuth 콜백을 처리하고 리프레시 토큰을 제공하는 경우
@@ -38,10 +39,12 @@ const GoogleAuthCallback: React.FC = () => {
       reissueToken()
         .then((token) => {
           setAccessToken(token);
+          setIsLoading(false);
           navigate('/overview');
         })
         .catch(error => {
           console.error('토큰 재발급 실패:', error);
+          setIsLoading(false);
           setErrorMessage('로그인 처리 중 오류가 발생했습니다.');
         });
     } else {
@@ -56,14 +59,18 @@ const GoogleAuthCallback: React.FC = () => {
           reissueToken()
             .then((token) => {
               setAccessToken(token);
+              setIsLoading(false);
               navigate('/overview');
             })
             .catch(error => {
               console.error('토큰 재발급 실패:', error);
+              setIsLoading(false);
               setErrorMessage('로그인 처리 중 오류가 발생했습니다.');
             });
         } else {
-          setErrorMessage('로그인 정보를 받지 못했습니다. 다시 시도해주세요.');
+          // 에러 메시지 대신 로그인 페이지로 리다이렉트
+          setIsLoading(false);
+          navigate('/login');
         }
       }, 1000);
     }
@@ -71,10 +78,12 @@ const GoogleAuthCallback: React.FC = () => {
 
   return (
     <CallbackContainer>
-      {errorMessage ? (
+      {isLoading ? (
+        "Google 로그인 처리 중..."
+      ) : errorMessage ? (
         <ErrorMessage>{errorMessage}</ErrorMessage>
       ) : (
-        "Google 로그인 처리 중..."
+        "로그인 완료 중..."
       )}
     </CallbackContainer>
   );

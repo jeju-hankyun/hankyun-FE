@@ -20,9 +20,19 @@ const GoogleAuthCallback: React.FC = () => {
   useEffect(() => {
     const code = searchParams.get('code');
     const state = searchParams.get('state');
+    const error = searchParams.get('error');
+
+    console.log('OAuth 콜백 파라미터:', { code, state, error });
+    console.log('전체 URL:', window.location.href);
+    console.log('Search params:', searchParams.toString());
+
+    if (error) {
+      setErrorMessage(`Google OAuth 오류: ${error}`);
+      return;
+    }
 
     if (!code || !state) {
-      setErrorMessage('Google OAuth 인증 정보가 없습니다.');
+      setErrorMessage('Google OAuth 인증 정보가 없습니다. URL을 확인해주세요.');
       return;
     }
 

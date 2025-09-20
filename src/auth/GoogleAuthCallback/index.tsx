@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { reissueToken, setAccessToken } from '../api';
+import { handleGoogleCallback, setAccessToken } from '../api';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -14,19 +14,35 @@ const CallbackContainer = styled.div`
 
 const GoogleAuthCallback: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    reissueToken()
-      .then((token) => {
-        setAccessToken(token);
-        navigate('/overview');
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
+
+    if (!code || !state) {
+      setErrorMessage('Google OAuth 인증 정보가 없습니다.');
+      return;
+    }
+
+    handleGoogleCallback(code, state)
+      .then((response) => {
+        console.log('Google OAuth 성공:', response);
+        // 응답에서 토큰 추출
+        const token = response.access_token || response.data?.access_token;
+        if (token) {
+          setAccessToken(token);
+          navigate('/overview');
+        } else {
+          setErrorMessage('토큰을 받지 못했습니다.');
+        }
       })
       .catch(error => {
-        console.error('로그인 실패:', error);
+        console.error('Google OAuth 실패:', error);
         setErrorMessage('Google 로그인에 실패했습니다. 다시 시도해주세요.');
       });
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   return (
     <CallbackContainer>

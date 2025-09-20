@@ -57,10 +57,19 @@ const LoginPage: React.FC = () => {
       try {
         setIsLoading(true);
         setErrorMessage(null);
+        console.log('Google OAuth URL 요청 시작...');
         const url = await getGoogleAuthUrl();
+        console.log('받은 Google OAuth URL:', url);
         setGoogleAuthUrl(url);
       } catch (error: any) {
         console.error("Google 인증 URL을 가져오는 데 실패했습니다:", error);
+        console.error("에러 상세:", {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          message: error.message,
+          code: error.code
+        });
         
         // 503 Service Unavailable 오류 처리
         if (error.response?.status === 503) {

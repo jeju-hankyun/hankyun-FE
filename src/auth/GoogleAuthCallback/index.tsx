@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { handleGoogleCallback, setAccessToken } from '../api';
+import { reissueToken, setAccessToken } from '../api';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -18,41 +18,56 @@ const GoogleAuthCallback: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const code = searchParams.get('code');
-    const state = searchParams.get('state');
-    const error = searchParams.get('error');
-
-    console.log('OAuth 콜백 파라미터:', { code, state, error });
+    // 백엔드에서 직접 Google OAuth 콜백을 처리하고 리프레시 토큰을 제공하는 경우
+    // URL 파라미터 대신 쿠키나 다른 방식으로 토큰을 받을 수 있음
+    
+    console.log('OAuth 콜백 페이지 로드됨');
     console.log('전체 URL:', window.location.href);
     console.log('Search params:', searchParams.toString());
-
-    if (error) {
-      setErrorMessage(`Google OAuth 오류: ${error}`);
-      return;
-    }
-
-    if (!code || !state) {
-      setErrorMessage('Google OAuth 인증 정보가 없습니다. URL을 확인해주세요.');
-      return;
-    }
-
-    handleGoogleCallback(code, state)
-      .then((response) => {
-        console.log('Google OAuth 성공:', response);
-        // 응답에서 토큰 추출
-        const token = response.access_token || response.data?.access_token;
-        if (token) {
+    
+    // 쿠키에서 리프레시 토큰 확인
+    const refreshToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('refresh_token='))
+      ?.split('=')[1];
+    
+    console.log('리프레시 토큰:', refreshToken);
+    
+    if (refreshToken) {
+      // 리프레시 토큰이 있으면 바로 토큰 재발급 시도
+      reissueToken()
+        .then((token) => {
           setAccessToken(token);
           navigate('/overview');
+        })
+        .catch(error => {
+          console.error('토큰 재발급 실패:', error);
+          setErrorMessage('로그인 처리 중 오류가 발생했습니다.');
+        });
+    } else {
+      // 리프레시 토큰이 없으면 잠시 대기 후 재시도
+      setTimeout(() => {
+        const retryRefreshToken = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('refresh_token='))
+          ?.split('=')[1];
+        
+        if (retryRefreshToken) {
+          reissueToken()
+            .then((token) => {
+              setAccessToken(token);
+              navigate('/overview');
+            })
+            .catch(error => {
+              console.error('토큰 재발급 실패:', error);
+              setErrorMessage('로그인 처리 중 오류가 발생했습니다.');
+            });
         } else {
-          setErrorMessage('토큰을 받지 못했습니다.');
+          setErrorMessage('로그인 정보를 받지 못했습니다. 다시 시도해주세요.');
         }
-      })
-      .catch(error => {
-        console.error('Google OAuth 실패:', error);
-        setErrorMessage('Google 로그인에 실패했습니다. 다시 시도해주세요.');
-      });
-  }, [navigate, searchParams]);
+      }, 1000);
+    }
+  }, [navigate]);
 
   return (
     <CallbackContainer>
